@@ -1,4 +1,4 @@
-using LitConnect.Data;
+using LitConnect.Web.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
