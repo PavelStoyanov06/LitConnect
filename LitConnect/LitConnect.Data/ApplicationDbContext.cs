@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace LitConnect.Web.Data
+namespace LitConnect.Data
 {
     public class ApplicationDbContext : IdentityDbContext
     {

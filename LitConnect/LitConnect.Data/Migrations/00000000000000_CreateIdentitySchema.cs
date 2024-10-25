@@ -1,8 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
-using System;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace LitConnect.Web.Data.Migrations
+namespace LitConnect.Data.Migrations
 {
     public partial class CreateIdentitySchema : Migration
     {
