@@ -6,4 +6,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\LitConnect.Data\LitConnect.Data.csproj" />
+    <ProjectReference Include="..\LitConnect.Data.Models\LitConnect.Data.Models.csproj" />
+    <ProjectReference Include="..\LitConnect.Web.ViewModels\LitConnect.Web.ViewModels.csproj" />
+  </ItemGroup>
+
 </Project>
