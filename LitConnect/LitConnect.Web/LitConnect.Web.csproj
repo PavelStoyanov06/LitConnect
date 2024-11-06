@@ -4,7 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>aspnet-LitConnect.Web-a2c8e239-93b8-4f3c-9d5b-176e6129ce2f</UserSecretsId>
+    <UserSecretsId>aspnet-LitConnect.Web-80ae3a02-057b-4a5e-a3fb-f53674c18600</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
