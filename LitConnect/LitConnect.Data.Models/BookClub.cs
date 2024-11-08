@@ -24,6 +24,7 @@ public class BookClub : BaseModel
     public string? Description { get; set; }
 
     [Required]
+    [ForeignKey(nameof(Owner))]
     public string OwnerId { get; set; } = null!;
 
     public virtual ApplicationUser Owner { get; set; } = null!;
