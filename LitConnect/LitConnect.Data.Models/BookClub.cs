@@ -10,7 +10,7 @@ public class BookClub : BaseModel
 {
     public BookClub()
     {
-        this.UsersBookClubs = new HashSet<UserBookClub>();
+        this.Users = new HashSet<UserBookClub>();
         this.Discussions = new HashSet<Discussion>();
         this.Meetings = new HashSet<Meeting>();
         this.Books = new HashSet<Book>();
@@ -35,7 +35,7 @@ public class BookClub : BaseModel
     public ApplicationUser Owner { get; set; } = null!;
 
     [Comment("Collection of user memberships in this book club")]
-    public ICollection<UserBookClub> UsersBookClubs { get; set; }
+    public ICollection<UserBookClub> Users { get; set; }
 
     [Comment("Collection of discussions within this book club")]
     public ICollection<Discussion> Discussions { get; set; }

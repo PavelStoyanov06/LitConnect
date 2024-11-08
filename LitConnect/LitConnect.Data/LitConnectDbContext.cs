@@ -18,6 +18,8 @@ public class LitConnectDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Review> Reviews { get; set; }
     public DbSet<UserBookClub> UsersBookClubs { get; set; }
     public DbSet<ReadingList> ReadingLists { get; set; }
+    public DbSet<Genre> Genres { get; set; }
+    public DbSet<BookGenre> BooksGenres { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -30,6 +32,16 @@ public class LitConnectDbContext : IdentityDbContext<ApplicationUser>
 
         builder.Entity<UserBookClub>()
             .HasOne(ub => ub.BookClub)
+            .WithMany()
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<BookGenre>()
+            .HasOne(bg => bg.Book)
+            .WithMany()
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<BookGenre>()
+            .HasOne(bg => bg.Genre)
             .WithMany()
             .OnDelete(DeleteBehavior.Cascade);
     }
