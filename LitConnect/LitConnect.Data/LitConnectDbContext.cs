@@ -11,10 +11,26 @@ public class LitConnectDbContext : IdentityDbContext<ApplicationUser>
     {
     }
 
+    public DbSet<Book> Books { get; set; }
+    public DbSet<BookClub> BookClubs { get; set; }
+    public DbSet<Discussion> Discussions { get; set; }
+    public DbSet<Meeting> Meetings { get; set; }
+    public DbSet<Review> Reviews { get; set; }
+    public DbSet<UserBookClub> UsersBookClubs { get; set; }
+    public DbSet<ReadingList> ReadingLists { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
 
-        // Will add configurations later
+        builder.Entity<UserBookClub>()
+            .HasOne(ub => ub.User)
+            .WithMany()
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<UserBookClub>()
+            .HasOne(ub => ub.BookClub)
+            .WithMany()
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
