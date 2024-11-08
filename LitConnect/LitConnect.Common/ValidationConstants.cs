@@ -9,4 +9,14 @@ public static class ValidationConstants
         public const int LastNameMinLength = 2;
         public const int LastNameMaxLength = 50;
     }
+
+    public static class Book
+    {
+        public const int TitleMinLength = 1;
+        public const int TitleMaxLength = 100;
+        public const int AuthorMinLength = 2;
+        public const int AuthorMaxLength = 50;
+        public const int DescriptionMaxLength = 1000;
+        public const int GenreMaxLength = 50;
+    }
 }
