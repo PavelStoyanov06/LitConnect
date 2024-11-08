@@ -16,5 +16,5 @@ public class ApplicationUser : IdentityUser
     [MaxLength(ValidationConstants.User.LastNameMaxLength)]
     public string LastName { get; set; } = null!;
 
-    public bool IsDeleted { get; set; }
+    public bool IsDeleted { get; set; } = false;
 }

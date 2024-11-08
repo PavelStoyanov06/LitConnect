@@ -20,14 +20,14 @@ public class Discussion : BaseModel
     [ForeignKey(nameof(Author))]
     public string AuthorId { get; set; } = null!;
 
-    public virtual ApplicationUser Author { get; set; } = null!;
+    public ApplicationUser Author { get; set; } = null!;
 
     [Required]
     public string BookClubId { get; set; } = null!;
 
-    public virtual BookClub BookClub { get; set; } = null!;
+    public BookClub BookClub { get; set; } = null!;
 
     public string? BookId { get; set; }
 
-    public virtual Book? Book { get; set; }
+    public Book? Book { get; set; }
 }

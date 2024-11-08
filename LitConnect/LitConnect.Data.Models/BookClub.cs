@@ -27,13 +27,13 @@ public class BookClub : BaseModel
     [ForeignKey(nameof(Owner))]
     public string OwnerId { get; set; } = null!;
 
-    public virtual ApplicationUser Owner { get; set; } = null!;
+    public ApplicationUser Owner { get; set; } = null!;
 
-    public virtual ICollection<Member> Members { get; set; }
+    public ICollection<Member> Members { get; set; }
 
-    public virtual ICollection<Discussion> Discussions { get; set; }
+    public ICollection<Discussion> Discussions { get; set; }
 
-    public virtual ICollection<Meeting> Meetings { get; set; }
+    public ICollection<Meeting> Meetings { get; set; }
 
-    public virtual ICollection<Book> Books { get; set; }
+    public ICollection<Book> Books { get; set; }
 }

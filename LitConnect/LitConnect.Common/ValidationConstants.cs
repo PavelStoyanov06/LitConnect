@@ -33,4 +33,11 @@ public static class ValidationConstants
         public const int TitleMaxLength = 100;
         public const int ContentMaxLength = 2000;
     }
+
+    public static class Meeting
+    {
+        public const int TitleMinLength = 5;
+        public const int TitleMaxLength = 100;
+        public const int DescriptionMaxLength = 500;
+    }
 }
