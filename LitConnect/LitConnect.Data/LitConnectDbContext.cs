@@ -27,22 +27,32 @@ public class LitConnectDbContext : IdentityDbContext<ApplicationUser>
 
         builder.Entity<UserBookClub>()
             .HasOne(ub => ub.User)
-            .WithMany()
-            .OnDelete(DeleteBehavior.Cascade);
+            .WithMany(u => u.BookClubs)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.Entity<UserBookClub>()
             .HasOne(ub => ub.BookClub)
+            .WithMany(bc => bc.Users)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<Discussion>()
+            .HasOne(d => d.Author)
             .WithMany()
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Discussion>()
+            .HasOne(d => d.BookClub)
+            .WithMany(bc => bc.Discussions)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<BookGenre>()
             .HasOne(bg => bg.Book)
-            .WithMany()
+            .WithMany(b => b.Genres)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<BookGenre>()
             .HasOne(bg => bg.Genre)
-            .WithMany()
+            .WithMany(g => g.Books)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
