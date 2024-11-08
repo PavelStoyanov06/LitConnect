@@ -30,9 +30,9 @@ public class Book : BaseModel
     [MaxLength(ValidationConstants.Book.GenreMaxLength)]
     public string Genre { get; set; } = null!;
 
-    public virtual ICollection<Review> Reviews { get; set; }
+    public ICollection<Review> Reviews { get; set; }
 
-    public virtual ICollection<BookClub> BookClubs { get; set; }
+    public ICollection<BookClub> BookClubs { get; set; }
 
-    public virtual ICollection<ReadingList> ReadingLists { get; set; }
+    public ICollection<ReadingList> ReadingLists { get; set; }
 }

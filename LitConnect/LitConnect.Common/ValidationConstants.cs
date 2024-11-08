@@ -40,4 +40,11 @@ public static class ValidationConstants
         public const int TitleMaxLength = 100;
         public const int DescriptionMaxLength = 500;
     }
+
+    public static class Review
+    {
+        public const int ContentMaxLength = 1000;
+        public const int MinRating = 1;
+        public const int MaxRating = 5;
+    }
 }

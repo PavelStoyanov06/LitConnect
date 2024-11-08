@@ -9,7 +9,7 @@ public class BookClub : BaseModel
 {
     public BookClub()
     {
-        this.Members = new HashSet<Member>();
+        this.UsersBookClubs = new HashSet<UserBookClub>();
         this.Discussions = new HashSet<Discussion>();
         this.Meetings = new HashSet<Meeting>();
         this.Books = new HashSet<Book>();
@@ -24,12 +24,12 @@ public class BookClub : BaseModel
     public string? Description { get; set; }
 
     [Required]
-    [ForeignKey(nameof(Owner))]
     public string OwnerId { get; set; } = null!;
 
+    [ForeignKey(nameof(OwnerId))]
     public ApplicationUser Owner { get; set; } = null!;
 
-    public ICollection<Member> Members { get; set; }
+    public ICollection<UserBookClub> UsersBookClubs { get; set; }
 
     public ICollection<Discussion> Discussions { get; set; }
 

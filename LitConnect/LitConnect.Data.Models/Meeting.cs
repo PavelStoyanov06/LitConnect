@@ -19,13 +19,13 @@ public class Meeting : BaseModel
     public DateTime ScheduledDate { get; set; }
 
     [Required]
-    [ForeignKey(nameof(BookClub))]
     public string BookClubId { get; set; } = null!;
 
+    [ForeignKey(nameof(BookClubId))]
     public BookClub BookClub { get; set; } = null!;
 
-    [ForeignKey(nameof(Book))]
     public string? BookId { get; set; }
 
+    [ForeignKey(nameof(BookId))]
     public Book? Book { get; set; }
 }

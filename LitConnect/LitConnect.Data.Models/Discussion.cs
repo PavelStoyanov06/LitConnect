@@ -17,17 +17,19 @@ public class Discussion : BaseModel
     public string Content { get; set; } = null!;
 
     [Required]
-    [ForeignKey(nameof(Author))]
     public string AuthorId { get; set; } = null!;
 
+    [ForeignKey(nameof(AuthorId))]
     public ApplicationUser Author { get; set; } = null!;
 
     [Required]
     public string BookClubId { get; set; } = null!;
 
+    [ForeignKey(nameof(BookClubId))]
     public BookClub BookClub { get; set; } = null!;
 
     public string? BookId { get; set; }
 
+    [ForeignKey(nameof(BookId))]
     public Book? Book { get; set; }
 }
