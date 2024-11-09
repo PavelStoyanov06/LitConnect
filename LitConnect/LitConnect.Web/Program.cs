@@ -1,8 +1,6 @@
 using LitConnect.Data;
 using LitConnect.Data.Models;
 using Microsoft.EntityFrameworkCore;
-using LitConnect.Web.Data;
-using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
