@@ -1,10 +1,9 @@
 ﻿using LitConnect.Data.Models;
 using LitConnect.Web.ViewModels.User;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-
-namespace LitConnect.Web.Areas.Identity.Pages.Account;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Policy;
 
 public class RegisterModel : PageModel
 {
@@ -23,17 +22,17 @@ public class RegisterModel : PageModel
     }
 
     [BindProperty]
-    public RegisterViewModel Input { get; set; }
+    public required RegisterViewModel Input { get; set; }
 
-    public string ReturnUrl { get; set; }
+    public string ReturnUrl { get; set; } = string.Empty;
 
-    public async Task<IActionResult> OnGetAsync(string returnUrl = null)
+    public IActionResult OnGet(string? returnUrl = null)
     {
-        ReturnUrl = returnUrl;
+        ReturnUrl = returnUrl ?? Url.Content("~/");
         return Page();
     }
 
-    public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+    public async Task<IActionResult> OnPostAsync(string? returnUrl = null)
     {
         returnUrl ??= Url.Content("~/");
 
