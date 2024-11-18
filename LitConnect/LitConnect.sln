@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LitConnect.Web", "LitConnect.Web\LitConnect.Web.csproj", "{6FF85F55-137B-4F5A-AE65-0F7866E11B30}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{06893881-5298-4FE2-9FE2-289EE17FA9F5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{B825C441-8AC1-43EE-A965-B904B995CB43}"
@@ -29,7 +27,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LitConnect.Services.Tests",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LitConnect.Web.Tests", "LitConnect.Web.Tests\LitConnect.Web.Tests.csproj", "{CB022F4E-5F6F-4155-8DF5-C4966ADBA0AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LitConnect.Web.ViewModels", "LitConnect.Web.ViewModels\LitConnect.Web.ViewModels.csproj", "{BC0B5807-0DB9-4D52-8970-2E7E3D3BC30B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LitConnect.Web.ViewModels", "LitConnect.Web.ViewModels\LitConnect.Web.ViewModels.csproj", "{BC0B5807-0DB9-4D52-8970-2E7E3D3BC30B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LitConnect.Web", "LitConnect.Web\LitConnect.Web.csproj", "{FF657F30-A530-49CD-86BC-55F445EC780F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,10 +37,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6FF85F55-137B-4F5A-AE65-0F7866E11B30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6FF85F55-137B-4F5A-AE65-0F7866E11B30}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6FF85F55-137B-4F5A-AE65-0F7866E11B30}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6FF85F55-137B-4F5A-AE65-0F7866E11B30}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9BC3A829-81E5-450D-BC5A-C87738AF6663}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9BC3A829-81E5-450D-BC5A-C87738AF6663}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9BC3A829-81E5-450D-BC5A-C87738AF6663}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -71,12 +67,15 @@ Global
 		{BC0B5807-0DB9-4D52-8970-2E7E3D3BC30B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC0B5807-0DB9-4D52-8970-2E7E3D3BC30B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC0B5807-0DB9-4D52-8970-2E7E3D3BC30B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF657F30-A530-49CD-86BC-55F445EC780F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF657F30-A530-49CD-86BC-55F445EC780F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF657F30-A530-49CD-86BC-55F445EC780F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF657F30-A530-49CD-86BC-55F445EC780F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{6FF85F55-137B-4F5A-AE65-0F7866E11B30} = {06893881-5298-4FE2-9FE2-289EE17FA9F5}
 		{9BC3A829-81E5-450D-BC5A-C87738AF6663} = {B825C441-8AC1-43EE-A965-B904B995CB43}
 		{2B35C050-C1BF-49D3-97DF-229FF6885B71} = {B825C441-8AC1-43EE-A965-B904B995CB43}
 		{F3C348B2-EE63-4ACA-ACB1-BA12867A8A26} = {608F0C89-4FBD-41C4-938C-16BF9121E757}
@@ -85,6 +84,7 @@ Global
 		{EE072EF9-3C50-40DC-9D29-CA7B395E975A} = {62EB8896-9127-4AF2-A445-604EB0BCF62E}
 		{CB022F4E-5F6F-4155-8DF5-C4966ADBA0AE} = {62EB8896-9127-4AF2-A445-604EB0BCF62E}
 		{BC0B5807-0DB9-4D52-8970-2E7E3D3BC30B} = {06893881-5298-4FE2-9FE2-289EE17FA9F5}
+		{FF657F30-A530-49CD-86BC-55F445EC780F} = {06893881-5298-4FE2-9FE2-289EE17FA9F5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {942BAB62-B303-410F-BB6F-9D87F6829FB2}
