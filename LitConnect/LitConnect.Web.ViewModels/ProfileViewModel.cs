@@ -5,22 +5,23 @@ using static LitConnect.Common.ValidationConstants.User;
 
 public class ProfileViewModel
 {
-    public required string Id { get; set; }
+    public string Id { get; set; } = null!;
 
-    [Display(Name = "Email")]
-    public required string Email { get; set; }
+    [Required]
+    [EmailAddress]
+    public string Email { get; set; } = null!;
 
-    [Required(ErrorMessage = "First name is required")]
-    [StringLength(FirstNameMaxLength, MinimumLength = FirstNameMinLength,
-        ErrorMessage = "First name must be between {2} and {1} characters")]
+    [Required]
+    [MinLength(FirstNameMinLength)]
+    [MaxLength(FirstNameMaxLength)]
     [Display(Name = "First Name")]
-    public required string FirstName { get; set; }
+    public string FirstName { get; set; } = null!;
 
-    [Required(ErrorMessage = "Last name is required")]
-    [StringLength(LastNameMaxLength, MinimumLength = LastNameMinLength,
-        ErrorMessage = "Last name must be between {2} and {1} characters")]
+    [Required]
+    [MinLength(LastNameMinLength)]
+    [MaxLength(LastNameMaxLength)]
     [Display(Name = "Last Name")]
-    public required string LastName { get; set; }
+    public string LastName { get; set; } = null!;
 
     [Display(Name = "Book Clubs")]
     public int BookClubsCount { get; set; }
