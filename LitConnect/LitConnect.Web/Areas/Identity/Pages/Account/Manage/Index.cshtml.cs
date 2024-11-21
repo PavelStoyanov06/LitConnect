@@ -10,13 +10,16 @@ public class IndexModel : PageModel
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly ILogger<IndexModel> _logger;
 
     public IndexModel(
         UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager)
+        SignInManager<ApplicationUser> signInManager,
+        ILogger<IndexModel> logger)
     {
         _userManager = userManager;
         _signInManager = signInManager;
+        _logger = logger;
     }
 
     [BindProperty]
@@ -27,13 +30,15 @@ public class IndexModel : PageModel
 
     private async Task LoadAsync(ApplicationUser user)
     {
+        var email = await _userManager.GetEmailAsync(user);
+
         Input = new ProfileViewModel
         {
             Id = user.Id,
             Email = user.Email!,
             FirstName = user.FirstName,
             LastName = user.LastName,
-            BookClubsCount = user.BookClubs.Count
+            BookClubsCount = user.BookClubs?.Count ?? 0
         };
     }
 
@@ -59,23 +64,41 @@ public class IndexModel : PageModel
 
         if (!ModelState.IsValid)
         {
+            var errors = ModelState.Values.SelectMany(v => v.Errors);
+            foreach (var error in errors)
+            {
+                _logger.LogError($"Model validation error: {error.ErrorMessage}");
+            }
             await LoadAsync(user);
             return Page();
         }
 
-        user.FirstName = Input.FirstName;
-        user.LastName = Input.LastName;
+        var firstName = user.FirstName;
+        var lastName = user.LastName;
 
-        var result = await _userManager.UpdateAsync(user);
-        if (result.Succeeded)
+        if (Input.FirstName != firstName || Input.LastName != lastName)
         {
-            StatusMessage = "Your profile has been updated";
-            return RedirectToPage();
+            user.FirstName = Input.FirstName;
+            user.LastName = Input.LastName;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+            {
+                _logger.LogInformation("User profile updated successfully.");
+                await _signInManager.RefreshSignInAsync(user);
+                StatusMessage = "Your profile has been updated successfully.";
+                return RedirectToPage();
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+                _logger.LogError($"Profile update error: {error.Description}");
+            }
         }
-
-        foreach (var error in result.Errors)
+        else
         {
-            ModelState.AddModelError(string.Empty, error.Description);
+            StatusMessage = "No changes were made to your profile.";
         }
 
         await LoadAsync(user);

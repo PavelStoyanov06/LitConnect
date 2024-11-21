@@ -1,8 +1,8 @@
 ﻿using LitConnect.Data.Models;
-using LitConnect.Web.ViewModels.User;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.ComponentModel.DataAnnotations;
 
 namespace LitConnect.Web.Areas.Identity.Pages.Account;
 
@@ -18,17 +18,31 @@ public class LoginModel : PageModel
     }
 
     [BindProperty]
-    public required LoginViewModel Input { get; set; }
+    public InputModel Input { get; set; }
 
-    public string ReturnUrl { get; set; } = string.Empty;
+    public string ReturnUrl { get; set; }
 
-    public IActionResult OnGet(string? returnUrl = null)
+    public class InputModel
+    {
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+
+        [Required]
+        [DataType(DataType.Password)]
+        public string Password { get; set; }
+
+        [Display(Name = "Remember me?")]
+        public bool RememberMe { get; set; }
+    }
+
+    public async Task<IActionResult> OnGetAsync(string returnUrl = null)
     {
         ReturnUrl = returnUrl ?? Url.Content("~/");
         return Page();
     }
 
-    public async Task<IActionResult> OnPostAsync(string? returnUrl = null)
+    public async Task<IActionResult> OnPostAsync(string returnUrl = null)
     {
         returnUrl ??= Url.Content("~/");
 
@@ -43,7 +57,7 @@ public class LoginModel : PageModel
             }
             if (result.RequiresTwoFactor)
             {
-                return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, Input.RememberMe });
+                return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
             }
             if (result.IsLockedOut)
             {
