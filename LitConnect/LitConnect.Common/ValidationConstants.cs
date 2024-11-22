@@ -18,6 +18,7 @@ public static class ValidationConstants
         public const int AuthorMaxLength = 50;
         public const int DescriptionMaxLength = 1000;
         public const int GenreMaxLength = 50;
+        public const int GenreMinLength = 2;
     }
 
     public static class BookClub
