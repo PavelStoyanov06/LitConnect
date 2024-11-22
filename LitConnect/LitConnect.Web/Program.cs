@@ -1,5 +1,7 @@
 using LitConnect.Data;
 using LitConnect.Data.Models;
+using LitConnect.Services.Contracts;
+using LitConnect.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,6 +30,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+
+builder.Services.AddScoped<IBookClubService, BookClubService>();
 
 var app = builder.Build();
 

@@ -1,0 +1,64 @@
+﻿@model BookClubDetailsViewModel
+
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">@Model.Name</h2>
+                @if (!Model.IsUserOwner && Model.IsUserMember)
+                {
+                    <form asp-action="Leave" asp-route-id="@Model.Id" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-danger">Leave Club</button>
+                    </form>
+                }
+                else if (!Model.IsUserMember)
+                {
+                    <form asp-action="Join" asp-route-id="@Model.Id" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-success">Join Club</button>
+                    </form>
+                }
+            </div>
+        </div>
+        <div class="card-body">
+            <p class="card-text">@(Model.Description ?? "No description available")</p>
+            <hr />
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Owner:</strong> @Model.OwnerName</p>
+                    <p><strong>Members:</strong> @Model.MembersCount</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.IsUserMember)
+    {
+        <div class="mt-4">
+            <h3>Club Activities</h3>
+            <div class="list-group">
+                <a href="#" class="list-group-item list-group-item-action">
+                    <div class="d-flex justify-content-between">
+                        <h5 class="mb-1">Discussions</h5>
+                        <small>View all</small>
+                    </div>
+                </a>
+                <a href="#" class="list-group-item list-group-item-action">
+                    <div class="d-flex justify-content-between">
+                        <h5 class="mb-1">Meetings</h5>
+                        <small>View all</small>
+                    </div>
+                </a>
+                <a href="#" class="list-group-item list-group-item-action">
+                    <div class="d-flex justify-content-between">
+                        <h5 class="mb-1">Reading List</h5>
+                        <small>View all</small>
+                    </div>
+                </a>
+            </div>
+        </div>
+    }
+</div>
