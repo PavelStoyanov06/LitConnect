@@ -15,7 +15,7 @@ public class BookController : Controller
         _bookService = bookService;
     }
 
-    public async Task<IActionResult> All()
+    public async Task<IActionResult> Index()
     {
         var books = await _bookService.GetAllAsync();
         return View(books);

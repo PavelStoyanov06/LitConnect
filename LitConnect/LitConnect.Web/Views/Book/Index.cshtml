@@ -1,0 +1,36 @@
+﻿@using LitConnect.Web.ViewModels.Book
+@model IEnumerable<BookAllViewModel>
+
+@{
+    ViewData["Title"] = "Books";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>@ViewData["Title"]</h1>
+        <a asp-action="Create" class="btn btn-primary">Add New Book</a>
+    </div>
+
+    <div class="row">
+        @foreach (var book in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">@book.Title</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">by @book.Author</h6>
+                        <div class="mt-2">
+                            @foreach (var genre in book.Genres)
+                            {
+                                <span class="badge bg-secondary me-1">@genre</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a asp-action="Details" asp-route-id="@book.Id" class="btn btn-info">Details</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

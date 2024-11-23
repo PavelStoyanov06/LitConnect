@@ -1,0 +1,36 @@
+﻿@using LitConnect.Web.ViewModels.Book
+@model BookDetailsViewModel
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="mb-0">@Model.Title</h2>
+            <h5 class="text-muted">by @Model.Author</h5>
+        </div>
+        <div class="card-body">
+            <div class="mb-4">
+                <h5>Description</h5>
+                <p>@(Model.Description ?? "No description available.")</p>
+            </div>
+
+            <div class="mb-4">
+                <h5>Genres</h5>
+                <div>
+                    @foreach (var genre in Model.Genres)
+                    {
+                        <span class="badge bg-secondary me-1">@genre</span>
+                    }
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h5>Book Clubs</h5>
+                <p>This book is featured in @Model.BookClubsCount book club(s)</p>
+            </div>
+        </div>
+    </div>
+</div>

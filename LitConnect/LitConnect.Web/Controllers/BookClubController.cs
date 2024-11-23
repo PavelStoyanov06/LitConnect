@@ -21,7 +21,7 @@ public class BookClubController : Controller
         _userManager = userManager;
     }
 
-    public async Task<IActionResult> All()
+    public async Task<IActionResult> Index()
     {
         var userId = _userManager.GetUserId(User);
         var bookClubs = await _bookClubService.GetAllAsync(userId);
