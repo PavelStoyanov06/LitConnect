@@ -5,6 +5,7 @@ using LitConnect.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using LitConnect.Services.Implementations;
+using LitConnect.Data.Seeding;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +36,7 @@ builder.Services.AddRazorPages();
 //Custom services
 builder.Services.AddScoped<IBookClubService, BookClubService>();
 builder.Services.AddScoped<IBookService, BookService>();
+builder.Services.AddScoped<IGenreService, GenreService>();
 
 var app = builder.Build();
 
@@ -42,6 +44,12 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<LitConnectDbContext>();
+        await GenreSeeder.SeedAsync(dbContext);
+    }
 }
 else
 {
