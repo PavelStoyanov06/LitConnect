@@ -41,4 +41,8 @@ public class Discussion : BaseModel
     [ForeignKey(nameof(BookId))]
     [Comment("Optional reference to the book being discussed")]
     public Book? Book { get; set; }
+
+    public DateTime CreatedOn { get; set; }
+
+    public ICollection<Comment> Comments { get; set; } = new HashSet<Comment>();
 }

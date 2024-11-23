@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LitConnect.Data.Migrations
 {
     [DbContext(typeof(LitConnectDbContext))]
-    [Migration("20241118181912_Initial")]
+    [Migration("20241123180814_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -217,6 +217,44 @@ namespace LitConnect.Data.Migrations
                     b.ToTable("BooksGenres");
                 });
 
+            modelBuilder.Entity("LitConnect.Data.Models.Comment", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)")
+                        .HasComment("Primary key of the entity");
+
+                    b.Property<string>("AuthorId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)")
+                        .HasComment("ID of the user who wrote the comment");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasComment("Main content of the comment");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2")
+                        .HasComment("Date and time when the comment was created");
+
+                    b.Property<string>("DiscussionId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)")
+                        .HasComment("ID of the discussion this comment belongs to");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
+
+                    b.HasIndex("DiscussionId");
+
+                    b.ToTable("Comments");
+                });
+
             modelBuilder.Entity("LitConnect.Data.Models.Discussion", b =>
                 {
                     b.Property<string>("Id")
@@ -242,6 +280,9 @@ namespace LitConnect.Data.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)")
                         .HasComment("Main content of the discussion post");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -484,12 +525,10 @@ namespace LitConnect.Data.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderKey")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("nvarchar(max)");
@@ -526,12 +565,10 @@ namespace LitConnect.Data.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Value")
                         .HasColumnType("nvarchar(max)");
@@ -599,6 +636,25 @@ namespace LitConnect.Data.Migrations
                     b.Navigation("Book");
 
                     b.Navigation("Genre");
+                });
+
+            modelBuilder.Entity("LitConnect.Data.Models.Comment", b =>
+                {
+                    b.HasOne("LitConnect.Data.Models.ApplicationUser", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("LitConnect.Data.Models.Discussion", "Discussion")
+                        .WithMany("Comments")
+                        .HasForeignKey("DiscussionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Author");
+
+                    b.Navigation("Discussion");
                 });
 
             modelBuilder.Entity("LitConnect.Data.Models.Discussion", b =>
@@ -762,6 +818,11 @@ namespace LitConnect.Data.Migrations
                     b.Navigation("Meetings");
 
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("LitConnect.Data.Models.Discussion", b =>
+                {
+                    b.Navigation("Comments");
                 });
 
             modelBuilder.Entity("LitConnect.Data.Models.Genre", b =>

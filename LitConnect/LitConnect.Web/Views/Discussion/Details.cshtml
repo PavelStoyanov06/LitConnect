@@ -1,0 +1,48 @@
+﻿@using LitConnect.Web.ViewModels.Discussion
+@model DiscussionDetailsViewModel
+
+@{
+    ViewData["Title"] = "Discussion Details";
+}
+
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="BookClub" asp-action="Index">Book Clubs</a></li>
+            <li class="breadcrumb-item"><a asp-controller="BookClub" asp-action="Details" asp-route-id="@Model.BookClubId">@Model.BookClubName</a></li>
+            <li class="breadcrumb-item active">Discussion</li>
+        </ol>
+    </nav>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">@Model.Title</h2>
+                @if (Model.IsCurrentUserAuthor)
+                {
+                    <form asp-action="Delete" asp-route-id="@Model.Id" method="post"
+                          onsubmit="return confirm('Are you sure you want to delete this discussion?');">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                }
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <small class="text-muted">
+                    Started by @Model.AuthorName on @Model.CreatedOn.ToString("MMM dd, yyyy")
+                </small>
+                @if (Model.BookTitle != null)
+                {
+                    <small class="text-muted">
+                        | Discussing: @Model.BookTitle
+                    </small>
+                }
+            </div>
+
+            <div class="discussion-content">
+                @Model.Content
+            </div>
+        </div>
+    </div>
+</div>

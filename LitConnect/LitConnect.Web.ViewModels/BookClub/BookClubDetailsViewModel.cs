@@ -1,4 +1,4 @@
-﻿namespace LitConnect.Web.ViewModels.BookClub;
+﻿using LitConnect.Web.ViewModels.Discussion;
 
 public class BookClubDetailsViewModel
 {
@@ -17,4 +17,7 @@ public class BookClubDetailsViewModel
     public bool IsUserMember { get; set; }
 
     public bool IsUserOwner { get; set; }
+
+    public IEnumerable<DiscussionInListViewModel> Discussions { get; set; }
+        = new List<DiscussionInListViewModel>();
 }

@@ -127,8 +127,8 @@ namespace LitConnect.Data.Migrations
                 name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
-                    ProviderKey = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
+                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ProviderKey = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ProviderDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
@@ -172,8 +172,8 @@ namespace LitConnect.Data.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    LoginProvider = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
+                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Value = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -314,6 +314,7 @@ namespace LitConnect.Data.Migrations
                     AuthorId = table.Column<string>(type: "nvarchar(450)", nullable: false, comment: "ID of the user who started the discussion"),
                     BookClubId = table.Column<string>(type: "nvarchar(450)", nullable: false, comment: "ID of the book club where this discussion takes place"),
                     BookId = table.Column<string>(type: "nvarchar(450)", nullable: true, comment: "Optional ID of the book being discussed"),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -415,6 +416,34 @@ namespace LitConnect.Data.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Comments",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false, comment: "Primary key of the entity"),
+                    Content = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false, comment: "Main content of the comment"),
+                    AuthorId = table.Column<string>(type: "nvarchar(450)", nullable: false, comment: "ID of the user who wrote the comment"),
+                    DiscussionId = table.Column<string>(type: "nvarchar(450)", nullable: false, comment: "ID of the discussion this comment belongs to"),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false, comment: "Date and time when the comment was created"),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Comments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Comments_AspNetUsers_AuthorId",
+                        column: x => x.AuthorId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Comments_Discussions_DiscussionId",
+                        column: x => x.DiscussionId,
+                        principalTable: "Discussions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -473,6 +502,16 @@ namespace LitConnect.Data.Migrations
                 name: "IX_BooksGenres_GenreId",
                 table: "BooksGenres",
                 column: "GenreId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Comments_AuthorId",
+                table: "Comments",
+                column: "AuthorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Comments_DiscussionId",
+                table: "Comments",
+                column: "DiscussionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Discussions_AuthorId",
@@ -548,7 +587,7 @@ namespace LitConnect.Data.Migrations
                 name: "BooksGenres");
 
             migrationBuilder.DropTable(
-                name: "Discussions");
+                name: "Comments");
 
             migrationBuilder.DropTable(
                 name: "Meetings");
@@ -569,10 +608,13 @@ namespace LitConnect.Data.Migrations
                 name: "Genres");
 
             migrationBuilder.DropTable(
-                name: "Books");
+                name: "Discussions");
 
             migrationBuilder.DropTable(
                 name: "BookClubs");
+
+            migrationBuilder.DropTable(
+                name: "Books");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

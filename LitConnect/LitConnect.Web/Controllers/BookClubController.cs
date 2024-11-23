@@ -11,13 +11,16 @@ using Microsoft.AspNetCore.Mvc;
 public class BookClubController : Controller
 {
     private readonly IBookClubService _bookClubService;
+    private readonly IDiscussionService _discussionService;
     private readonly UserManager<ApplicationUser> _userManager;
 
     public BookClubController(
         IBookClubService bookClubService,
+        IDiscussionService discussionService,
         UserManager<ApplicationUser> userManager)
     {
         _bookClubService = bookClubService;
+        _discussionService = discussionService;
         _userManager = userManager;
     }
 
@@ -58,6 +61,8 @@ public class BookClubController : Controller
         {
             return NotFound();
         }
+
+        bookClub.Discussions = await _discussionService.GetBookClubDiscussionsAsync(id);
 
         return View(bookClub);
     }

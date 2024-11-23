@@ -48,4 +48,9 @@ public static class ValidationConstants
         public const int MinRating = 1;
         public const int MaxRating = 5;
     }
+
+    public static class Comment
+    {
+        public const int ContentMaxLength = 500;
+    }
 }

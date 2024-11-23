@@ -37,6 +37,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddScoped<IBookClubService, BookClubService>();
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IGenreService, GenreService>();
+builder.Services.AddScoped<IDiscussionService, DiscussionService>();
 
 var app = builder.Build();
 
