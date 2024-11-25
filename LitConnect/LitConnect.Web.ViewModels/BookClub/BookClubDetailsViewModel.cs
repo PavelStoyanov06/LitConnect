@@ -1,4 +1,5 @@
-﻿using LitConnect.Web.ViewModels.Discussion;
+﻿using LitConnect.Web.ViewModels.BookClub;
+using LitConnect.Web.ViewModels.Discussion;
 using LitConnect.Web.ViewModels.Meeting;
 
 public class BookClubDetailsViewModel
@@ -24,4 +25,9 @@ public class BookClubDetailsViewModel
 
     public IEnumerable<MeetingInListViewModel> Meetings { get; set; }
         = new List<MeetingInListViewModel>();
+
+    public BookClubBookViewModel? CurrentBook { get; set; }
+
+    public IEnumerable<BookClubBookViewModel> Books { get; set; }
+        = new List<BookClubBookViewModel>();
 }

@@ -39,6 +39,79 @@
 
     @if (Model.IsUserMember)
     {
+        <!-- Books Section -->
+        <div class="mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3>Books</h3>
+                <a asp-controller="BookClub" asp-action="AddBook" asp-route-id="@Model.Id"
+                   class="btn btn-primary">Add Book</a>
+            </div>
+
+            @if (Model.CurrentBook != null)
+            {
+                <div class="card mb-4 border-primary">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Currently Reading</h5>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">@Model.CurrentBook.Title</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">by @Model.CurrentBook.Author</h6>
+                        <div class="mt-2">
+                            @foreach (var genre in Model.CurrentBook.Genres)
+                            {
+                                <span class="badge bg-secondary me-1">@genre</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+
+            @if (!Model.Books.Any())
+            {
+                <div class="alert alert-info">
+                    No books in the club library yet.
+                </div>
+            }
+            else
+            {
+                <div class="row">
+                    @foreach (var book in Model.Books)
+                    {
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">@book.Title</h5>
+                                    <h6 class="card-subtitle mb-2 text-muted">by @book.Author</h6>
+                                    <div class="mt-2">
+                                        @foreach (var genre in book.Genres)
+                                        {
+                                            <span class="badge bg-secondary me-1">@genre</span>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    @if (!book.IsCurrentlyReading)
+                                    {
+                                        <form asp-action="SetCurrentlyReading" method="post" class="d-inline">
+                                            <input type="hidden" name="bookClubId" value="@Model.Id" />
+                                            <input type="hidden" name="bookId" value="@book.Id" />
+                                            <button type="submit" class="btn btn-primary btn-sm">Set as Current</button>
+                                        </form>
+                                    }
+                                    <form asp-action="RemoveBook" method="post" class="d-inline"
+                                          onsubmit="return confirm('Are you sure you want to remove this book?');">
+                                        <input type="hidden" name="bookClubId" value="@Model.Id" />
+                                        <input type="hidden" name="bookId" value="@book.Id" />
+                                        <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
         <!-- Meetings Section -->
         <div class="mt-4">
             <div class="d-flex justify-content-between align-items-center mb-3">

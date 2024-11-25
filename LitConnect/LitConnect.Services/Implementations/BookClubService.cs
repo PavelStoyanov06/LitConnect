@@ -54,6 +54,26 @@ public class BookClubService : IBookClubService
                     ScheduledDate = m.ScheduledDate,
                     BookTitle = m.Book != null ? m.Book.Title : null
                 })
+                .ToList(),
+                CurrentBook = bc.CurrentBookId != null ? new BookClubBookViewModel
+                {
+                    Id = bc.Books.First(b => b.Id == bc.CurrentBookId).Id,
+                    Title = bc.Books.First(b => b.Id == bc.CurrentBookId).Title,
+                    Author = bc.Books.First(b => b.Id == bc.CurrentBookId).Author,
+                    IsCurrentlyReading = true,
+                    Genres = bc.Books.First(b => b.Id == bc.CurrentBookId).Genres
+                .Select(bg => bg.Genre.Name)
+                .ToList()
+                } : null,
+                Books = bc.Books
+                .Select(b => new BookClubBookViewModel
+                {
+                    Id = b.Id,
+                    Title = b.Title,
+                    Author = b.Author,
+                    IsCurrentlyReading = b.Id == bc.CurrentBookId,
+                    Genres = b.Genres.Select(bg => bg.Genre.Name).ToList()
+                })
                 .ToList()
             })
             .FirstOrDefaultAsync();
