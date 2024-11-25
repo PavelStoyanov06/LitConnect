@@ -107,4 +107,63 @@ public class BookClubService : IBookClubService
             await _context.SaveChangesAsync();
         }
     }
+
+    public async Task AddBookAsync(string bookClubId, string bookId, bool isCurrentlyReading)
+    {
+        var bookClub = await _context.BookClubs
+            .Include(bc => bc.Books)
+            .FirstOrDefaultAsync(bc => bc.Id == bookClubId);
+
+        var book = await _context.Books.FindAsync(bookId);
+
+        if (bookClub != null && book != null)
+        {
+            bookClub.Books.Add(book);
+
+            if (isCurrentlyReading)
+            {
+                // Logic for marking as currently reading
+                // You might need to add a property to track this
+            }
+
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    public async Task RemoveBookAsync(string bookClubId, string bookId)
+    {
+        var bookClub = await _context.BookClubs
+            .Include(bc => bc.Books)
+            .FirstOrDefaultAsync(bc => bc.Id == bookClubId);
+
+        var book = await _context.Books.FindAsync(bookId);
+
+        if (bookClub != null && book != null)
+        {
+            bookClub.Books.Remove(book);
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    public async Task SetCurrentlyReadingAsync(string bookClubId, string bookId)
+    {
+        // Implement logic for setting current book
+        // You might need to add a property or table to track this
+    }
+
+    public async Task<IEnumerable<BookClubBookViewModel>> GetBooksAsync(string bookClubId)
+    {
+        return await _context.BookClubs
+            .Where(bc => bc.Id == bookClubId)
+            .SelectMany(bc => bc.Books)
+            .Select(b => new BookClubBookViewModel
+            {
+                Id = b.Id,
+                Title = b.Title,
+                Author = b.Author,
+                Genres = b.Genres.Select(g => g.Genre.Name),
+                IsCurrentlyReading = false // You'll need to implement this logic
+            })
+            .ToListAsync();
+    }
 }
