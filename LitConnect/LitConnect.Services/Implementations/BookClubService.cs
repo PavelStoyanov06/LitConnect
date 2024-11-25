@@ -112,18 +112,42 @@ public class BookClubService : IBookClubService
     {
         var bookClub = await _context.BookClubs
             .Include(bc => bc.Books)
-            .FirstOrDefaultAsync(bc => bc.Id == bookClubId);
+            .FirstOrDefaultAsync(bc => bc.Id == bookClubId && !bc.IsDeleted);
 
-        var book = await _context.Books.FindAsync(bookId);
+        if (bookClub == null)
+        {
+            throw new InvalidOperationException("Book club not found");
+        }
 
-        if (bookClub != null && book != null)
+        var book = await _context.Books
+            .FirstOrDefaultAsync(b => b.Id == bookId && !b.IsDeleted);
+
+        if (book == null)
+        {
+            throw new InvalidOperationException("Book not found");
+        }
+
+        var exists = await _context.BookClubs
+            .AnyAsync(bc => bc.Id == bookClubId && bc.Books.Any(b => b.Id == bookId));
+
+        if (!exists)
         {
             bookClub.Books.Add(book);
 
             if (isCurrentlyReading)
             {
-                // Logic for marking as currently reading
-                // You might need to add a property to track this
+                // First, remove current reading status from any other book
+                var currentlyReadingBooks = await _context.BookClubs
+                    .Where(bc => bc.Id == bookClubId && bc.CurrentBookId != null)
+                    .ToListAsync();
+
+                foreach (var bc in currentlyReadingBooks)
+                {
+                    bc.CurrentBookId = null;
+                }
+
+                // Set this book as currently reading
+                bookClub.CurrentBookId = bookId;
             }
 
             await _context.SaveChangesAsync();
@@ -134,36 +158,96 @@ public class BookClubService : IBookClubService
     {
         var bookClub = await _context.BookClubs
             .Include(bc => bc.Books)
-            .FirstOrDefaultAsync(bc => bc.Id == bookClubId);
+            .FirstOrDefaultAsync(bc => bc.Id == bookClubId && !bc.IsDeleted);
 
-        var book = await _context.Books.FindAsync(bookId);
-
-        if (bookClub != null && book != null)
+        if (bookClub == null)
         {
-            bookClub.Books.Remove(book);
-            await _context.SaveChangesAsync();
+            throw new InvalidOperationException("Book club not found");
         }
+
+        var book = await _context.Books
+            .FirstOrDefaultAsync(b => b.Id == bookId && !b.IsDeleted);
+
+        if (book == null)
+        {
+            throw new InvalidOperationException("Book not found");
+        }
+
+        if (bookClub.CurrentBookId == bookId)
+        {
+            bookClub.CurrentBookId = null;
+        }
+
+        bookClub.Books.Remove(book);
+        await _context.SaveChangesAsync();
     }
 
     public async Task SetCurrentlyReadingAsync(string bookClubId, string bookId)
     {
-        // Implement logic for setting current book
-        // You might need to add a property or table to track this
+        var bookClub = await _context.BookClubs
+            .Include(bc => bc.Books)
+            .FirstOrDefaultAsync(bc => bc.Id == bookClubId && !bc.IsDeleted);
+
+        if (bookClub == null)
+        {
+            throw new InvalidOperationException("Book club not found");
+        }
+
+        var hasBook = bookClub.Books.Any(b => b.Id == bookId);
+        if (!hasBook)
+        {
+            throw new InvalidOperationException("Book is not in this book club");
+        }
+
+        // Remove current reading status from any other book
+        bookClub.CurrentBookId = bookId;
+        await _context.SaveChangesAsync();
     }
 
     public async Task<IEnumerable<BookClubBookViewModel>> GetBooksAsync(string bookClubId)
     {
-        return await _context.BookClubs
-            .Where(bc => bc.Id == bookClubId)
-            .SelectMany(bc => bc.Books)
+        var bookClub = await _context.BookClubs
+            .Include(bc => bc.Books)
+                .ThenInclude(b => b.Genres)
+                    .ThenInclude(bg => bg.Genre)
+            .FirstOrDefaultAsync(bc => bc.Id == bookClubId && !bc.IsDeleted);
+
+        if (bookClub == null)
+        {
+            throw new InvalidOperationException("Book club not found");
+        }
+
+        return bookClub.Books
+            .Where(b => !b.IsDeleted)
             .Select(b => new BookClubBookViewModel
             {
                 Id = b.Id,
                 Title = b.Title,
                 Author = b.Author,
-                Genres = b.Genres.Select(g => g.Genre.Name),
-                IsCurrentlyReading = false // You'll need to implement this logic
+                IsCurrentlyReading = b.Id == bookClub.CurrentBookId,
+                Genres = b.Genres
+                    .Where(bg => !bg.IsDeleted)
+                    .Select(bg => bg.Genre.Name)
+                    .ToList()
             })
-            .ToListAsync();
+            .ToList();
+    }
+
+    public async Task<BookClubBookViewModel?> GetCurrentBookAsync(string bookClubId)
+    {
+        return await _context.BookClubs
+            .Where(bc => bc.Id == bookClubId && !bc.IsDeleted && bc.CurrentBookId != null)
+            .Select(bc => new BookClubBookViewModel
+            {
+                Id = bc.Books.First(b => b.Id == bc.CurrentBookId).Id,
+                Title = bc.Books.First(b => b.Id == bc.CurrentBookId).Title,
+                Author = bc.Books.First(b => b.Id == bc.CurrentBookId).Author,
+                IsCurrentlyReading = true,
+                Genres = bc.Books.First(b => b.Id == bc.CurrentBookId).Genres
+                    .Where(bg => !bg.IsDeleted)
+                    .Select(bg => bg.Genre.Name)
+                    .ToList()
+            })
+            .FirstOrDefaultAsync();
     }
 }
