@@ -45,4 +45,7 @@ public class BookClub : BaseModel
 
     [Comment("Collection of books associated with this book club")]
     public ICollection<Book> Books { get; set; }
+
+    [Comment("ID of the book currently being read")]
+    public string? CurrentBookId { get; set; }
 }

@@ -8,20 +8,22 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-[Authorize]
 public class BookClubController : Controller
 {
     private readonly IBookClubService _bookClubService;
     private readonly IBookService _bookService;
+    private readonly IDiscussionService _discussionService;
     private readonly UserManager<ApplicationUser> _userManager;
 
     public BookClubController(
         IBookClubService bookClubService,
         IBookService bookService,
+        IDiscussionService discussionService,
         UserManager<ApplicationUser> userManager)
     {
         _bookClubService = bookClubService;
         _bookService = bookService;
+        _discussionService = discussionService;
         _userManager = userManager;
     }
 
@@ -91,13 +93,13 @@ public class BookClubController : Controller
     public async Task<IActionResult> AddBook(string id)
     {
         var books = await _bookService.GetAllAsync();
-        var model = new AddBookViewModel
-        {
-            BookClubId = id
-        };
-
         ViewBag.Books = books;
-        return View(model);
+
+        return View(new AddBookViewModel
+        {
+            BookClubId = id,
+            BookId = string.Empty // Initialize the required property
+        });
     }
 
     [HttpPost]

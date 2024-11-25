@@ -65,5 +65,11 @@ public class LitConnectDbContext : IdentityDbContext<ApplicationUser>
             .HasOne(c => c.Discussion)
             .WithMany(d => d.Comments)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<BookClub>()
+            .HasOne<Book>()
+            .WithMany()
+            .HasForeignKey(bc => bc.CurrentBookId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }
