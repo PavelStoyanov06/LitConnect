@@ -1,7 +1,8 @@
-﻿@model BookClubDetailsViewModel
+﻿@using LitConnect.Web.ViewModels.BookClub
+@model BookClubDetailsViewModel
 
 @{
-    ViewData["Title"] = @Model.Name;
+    ViewData["Title"] = Model.Name;
 }
 
 <div class="container mt-4">
@@ -38,6 +39,59 @@
 
     @if (Model.IsUserMember)
     {
+        <!-- Meetings Section -->
+        <div class="mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3>Meetings</h3>
+                <a asp-controller="Meeting" asp-action="Create" asp-route-bookClubId="@Model.Id"
+                   class="btn btn-primary">Schedule Meeting</a>
+            </div>
+
+            @if (!Model.Meetings.Any())
+            {
+                <div class="alert alert-info">
+                    No meetings scheduled yet.
+                </div>
+            }
+            else
+            {
+                <div class="row">
+                    @foreach (var meeting in Model.Meetings.OrderBy(m => m.ScheduledDate))
+                    {
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">@meeting.Title</h5>
+                                    <p class="card-text">
+                                        <strong>When:</strong> @meeting.ScheduledDate.ToString("MMM dd, yyyy HH:mm")
+                                    </p>
+                                    @if (meeting.BookTitle != null)
+                                    {
+                                        <p class="card-text">
+                                            <strong>Book:</strong> @meeting.BookTitle
+                                        </p>
+                                    }
+                                    @if (meeting.IsUpcoming)
+                                    {
+                                        <span class="badge bg-primary">Upcoming</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Past</span>
+                                    }
+                                </div>
+                                <div class="card-footer">
+                                    <a asp-controller="Meeting" asp-action="Details" asp-route-id="@meeting.Id"
+                                       class="btn btn-info">Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Discussions Section -->
         <div class="mt-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h3>Discussions</h3>
@@ -76,7 +130,7 @@
     else
     {
         <div class="alert alert-info mt-4">
-            Join this book club to participate in discussions!
+            Join this book club to participate in discussions and meetings!
         </div>
     }
 </div>

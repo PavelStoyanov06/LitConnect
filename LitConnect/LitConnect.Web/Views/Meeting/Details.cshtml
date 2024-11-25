@@ -1,5 +1,65 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@using LitConnect.Web.ViewModels.Meeting
+@model MeetingDetailsViewModel
+
 @{
+    ViewData["Title"] = Model.Title;
 }
+
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="BookClub" asp-action="Index">Book Clubs</a></li>
+            <li class="breadcrumb-item"><a asp-controller="BookClub" asp-action="Details" asp-route-id="@Model.BookClubId">@Model.BookClubName</a></li>
+            <li class="breadcrumb-item active">Meeting Details</li>
+        </ol>
+    </nav>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">@Model.Title</h2>
+                @if (Model.IsUpcoming)
+                {
+                    <span class="badge bg-primary">Upcoming</span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary">Past</span>
+                }
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="mb-4">
+                <h5>Date and Time</h5>
+                <p>@Model.ScheduledDate.ToString("dddd, MMMM dd, yyyy at HH:mm")</p>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.Description))
+            {
+                <div class="mb-4">
+                    <h5>Description</h5>
+                    <p>@Model.Description</p>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.BookTitle))
+            {
+                <div class="mb-4">
+                    <h5>Book Discussion</h5>
+                    <p>@Model.BookTitle</p>
+                </div>
+            }
+
+            <div class="mt-4">
+                <form asp-action="Delete" method="post"
+                      asp-route-id="@Model.Id"
+                      asp-route-bookClubId="@Model.BookClubId"
+                      onsubmit="return confirm('Are you sure you want to delete this meeting?');">
+                    <a asp-controller="BookClub" asp-action="Details" asp-route-id="@Model.BookClubId"
+                       class="btn btn-secondary">Back to Book Club</a>
+                    <button type="submit" class="btn btn-danger">Delete Meeting</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

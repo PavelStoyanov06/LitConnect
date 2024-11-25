@@ -39,6 +39,7 @@ builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IGenreService, GenreService>();
 builder.Services.AddScoped<IDiscussionService, DiscussionService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<IMeetingService, MeetingService>();
 
 var app = builder.Build();
 

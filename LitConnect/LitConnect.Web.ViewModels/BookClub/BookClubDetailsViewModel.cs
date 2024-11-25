@@ -1,4 +1,5 @@
 ﻿using LitConnect.Web.ViewModels.Discussion;
+using LitConnect.Web.ViewModels.Meeting;
 
 public class BookClubDetailsViewModel
 {
@@ -20,4 +21,7 @@ public class BookClubDetailsViewModel
 
     public IEnumerable<DiscussionInListViewModel> Discussions { get; set; }
         = new List<DiscussionInListViewModel>();
+
+    public IEnumerable<MeetingInListViewModel> Meetings { get; set; }
+        = new List<MeetingInListViewModel>();
 }

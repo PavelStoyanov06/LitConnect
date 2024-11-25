@@ -4,6 +4,7 @@ using LitConnect.Data;
 using LitConnect.Data.Models;
 using LitConnect.Services.Contracts;
 using LitConnect.Web.ViewModels.BookClub;
+using LitConnect.Web.ViewModels.Meeting;
 using Microsoft.EntityFrameworkCore;
 
 public class BookClubService : IBookClubService
@@ -43,7 +44,17 @@ public class BookClubService : IBookClubService
                 OwnerName = $"{bc.Owner.FirstName} {bc.Owner.LastName}",
                 MembersCount = bc.Users.Count,
                 IsUserMember = bc.Users.Any(u => u.UserId == userId),
-                IsUserOwner = bc.OwnerId == userId
+                IsUserOwner = bc.OwnerId == userId,
+                Meetings = bc.Meetings
+                .Where(m => !m.IsDeleted)
+                .Select(m => new MeetingInListViewModel
+                {
+                    Id = m.Id,
+                    Title = m.Title,
+                    ScheduledDate = m.ScheduledDate,
+                    BookTitle = m.Book != null ? m.Book.Title : null
+                })
+                .ToList()
             })
             .FirstOrDefaultAsync();
     }
