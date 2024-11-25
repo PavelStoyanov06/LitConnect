@@ -3,6 +3,7 @@
 using LitConnect.Data;
 using LitConnect.Data.Models;
 using LitConnect.Services.Contracts;
+using LitConnect.Web.ViewModels.Comment;
 using LitConnect.Web.ViewModels.Discussion;
 using Microsoft.EntityFrameworkCore;
 
@@ -45,7 +46,16 @@ public class DiscussionService : IDiscussionService
                 BookClubName = d.BookClub.Name,
                 BookTitle = d.Book != null ? d.Book.Title : null,
                 CreatedOn = d.CreatedOn,
-                IsCurrentUserAuthor = d.AuthorId == userId
+                IsCurrentUserAuthor = d.AuthorId == userId,
+                Comments = d.Comments.Select(c => new CommentViewModel
+                {
+                    Id = c.Id,
+                    Content = c.Content,
+                    AuthorName = $"{c.Author.FirstName} {c.Author.LastName}",
+                    CreatedOn = c.CreatedOn,
+                    IsCurrentUserAuthor = c.AuthorId == userId
+                }).ToList(),
+                NewComment = new CommentCreateViewModel { DiscussionId = d.Id } 
             })
             .FirstOrDefaultAsync();
     }

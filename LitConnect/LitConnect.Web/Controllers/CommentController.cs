@@ -25,6 +25,9 @@ public class CommentController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CommentCreateViewModel model)
     {
+        // Add this to see what's being received
+        Console.WriteLine($"DiscussionId: {model.DiscussionId}");
+
         if (!ModelState.IsValid)
         {
             return RedirectToAction("Details", "Discussion", new { id = model.DiscussionId });
