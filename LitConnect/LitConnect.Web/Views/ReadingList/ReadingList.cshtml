@@ -1,0 +1,56 @@
+﻿@using LitConnect.Web.ViewModels.ReadingList
+@model ReadingListViewModel
+
+@{
+    ViewData["Title"] = "My Reading List";
+}
+
+<div class="container mt-4">
+    <h2>@ViewData["Title"]</h2>
+
+    @if (!Model.Books.Any())
+    {
+        <div class="alert alert-info">
+            Your reading list is empty. Add books from book clubs to get started!
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var book in Model.Books)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">@book.Title</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">by @book.Author</h6>
+                            <div class="mt-2 mb-3">
+                                @foreach (var genre in book.Genres)
+                                {
+                                    <span class="badge bg-secondary me-1">@genre</span>
+                                }
+                            </div>
+                            <div class="status-section">
+                                <form asp-action="UpdateStatus" method="post" class="mb-2">
+                                    <input type="hidden" name="bookId" value="@book.Id" />
+                                    <select name="status" class="form-select form-select-sm"
+                                            onchange="this.form.submit()"
+                                            asp-items="@Html.GetEnumSelectList<ReadingStatus>()">
+                                        <option value="@book.Status" selected>@book.Status</option>
+                                    </select>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <form asp-action="RemoveBook" method="post"
+                                  onsubmit="return confirm('Remove this book from your reading list?');">
+                                <input type="hidden" name="bookId" value="@book.Id" />
+                                <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
