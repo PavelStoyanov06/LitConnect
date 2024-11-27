@@ -23,7 +23,12 @@ public class ReadingListService : IReadingListService
                 .ThenInclude(b => b.Genres)
                     .ThenInclude(bg => bg.Genre)
             .Where(rl => rl.UserId == userId && !rl.IsDeleted)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync() ?? new ReadingList
+            {
+                UserId = userId,
+                Books = new HashSet<Book>(),
+                User = await _context.Users.FirstAsync(u => u.Id == userId)
+            };
 
         if (readingList == null)
         {

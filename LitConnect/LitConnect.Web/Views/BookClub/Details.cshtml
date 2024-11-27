@@ -98,6 +98,10 @@
                                             <button type="submit" class="btn btn-primary btn-sm">Set as Current</button>
                                         </form>
                                     }
+                                    <form asp-controller="ReadingList" asp-action="AddBook" method="post" class="d-inline">
+                                        <input type="hidden" name="bookId" value="@book.Id" />
+                                        <button type="submit" class="btn btn-success btn-sm">Add to Reading List</button>
+                                    </form>
                                     <form asp-action="RemoveBook" method="post" class="d-inline"
                                           onsubmit="return confirm('Are you sure you want to remove this book?');">
                                         <input type="hidden" name="bookClubId" value="@Model.Id" />
