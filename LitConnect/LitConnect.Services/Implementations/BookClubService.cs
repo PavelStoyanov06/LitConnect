@@ -270,4 +270,76 @@ public class BookClubService : IBookClubService
             })
             .FirstOrDefaultAsync();
     }
+
+    public async Task<BookClubMembersViewModel> GetMembersAsync(string bookClubId, string currentUserId)
+    {
+        var bookClub = await _context.BookClubs
+            .Include(bc => bc.Users)
+                .ThenInclude(u => u.User)
+            .FirstOrDefaultAsync(bc => bc.Id == bookClubId && !bc.IsDeleted);
+
+        if (bookClub == null)
+        {
+            throw new InvalidOperationException("Book club not found");
+        }
+
+        return new BookClubMembersViewModel
+        {
+            BookClubId = bookClub.Id,
+            BookClubName = bookClub.Name,
+            IsCurrentUserOwner = bookClub.OwnerId == currentUserId,
+            IsCurrentUserAdmin = await IsUserAdminAsync(bookClubId, currentUserId),
+            Members = bookClub.Users
+                .Select(u => new BookClubMemberViewModel
+                {
+                    UserId = u.UserId,
+                    UserName = $"{u.User.FirstName} {u.User.LastName}",
+                    Email = u.User.Email!,
+                    JoinedOn = u.JoinedOn,
+                    IsAdmin = u.IsAdmin,
+                    IsOwner = bookClub.OwnerId == u.UserId
+                })
+                .OrderByDescending(m => m.IsOwner)
+                .ThenByDescending(m => m.IsAdmin)
+                .ThenBy(m => m.UserName)
+                .ToList()
+        };
+    }
+
+    public async Task SetAdminStatusAsync(string bookClubId, string userId, bool isAdmin)
+    {
+        var membership = await _context.UsersBookClubs
+            .FirstOrDefaultAsync(ubc => ubc.BookClubId == bookClubId && ubc.UserId == userId);
+
+        if (membership == null)
+        {
+            throw new InvalidOperationException("Member not found");
+        }
+
+        membership.IsAdmin = isAdmin;
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<bool> IsUserAdminAsync(string bookClubId, string userId)
+    {
+        var membership = await _context.UsersBookClubs
+            .FirstOrDefaultAsync(ubc => ubc.BookClubId == bookClubId && ubc.UserId == userId);
+
+        return membership?.IsAdmin ?? false;
+    }
+
+    public async Task<bool> IsUserOwnerOrAdminAsync(string bookClubId, string userId)
+    {
+        var bookClub = await _context.BookClubs
+            .Include(bc => bc.Users)
+            .FirstOrDefaultAsync(bc => bc.Id == bookClubId && !bc.IsDeleted);
+
+        if (bookClub == null)
+        {
+            return false;
+        }
+
+        return bookClub.OwnerId == userId ||
+               await IsUserAdminAsync(bookClubId, userId);
+    }
 }

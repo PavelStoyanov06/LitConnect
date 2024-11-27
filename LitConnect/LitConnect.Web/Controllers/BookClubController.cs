@@ -132,4 +132,27 @@ public class BookClubController : Controller
         await _bookClubService.SetCurrentlyReadingAsync(bookClubId, bookId);
         return RedirectToAction(nameof(Details), new { id = bookClubId });
     }
+
+    public async Task<IActionResult> Members(string id)
+    {
+        var userId = _userManager.GetUserId(User);
+        var viewModel = await _bookClubService.GetMembersAsync(id, userId);
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SetAdmin(string bookClubId, string userId, bool isAdmin)
+    {
+        var currentUserId = _userManager.GetUserId(User);
+        var bookClub = await _bookClubService.GetDetailsAsync(bookClubId, currentUserId);
+
+        if (!bookClub.IsUserOwner)
+        {
+            return Forbid();
+        }
+
+        await _bookClubService.SetAdminStatusAsync(bookClubId, userId, isAdmin);
+        return RedirectToAction(nameof(Members), new { id = bookClubId });
+    }
 }

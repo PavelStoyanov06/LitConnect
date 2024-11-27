@@ -25,6 +25,7 @@
                 }
             </div>
         </div>
+        <a asp-action="Members" asp-route-id="@Model.Id" class="btn btn-info">View Members</a>
         <div class="card-body">
             <p class="card-text">@(Model.Description ?? "No description available")</p>
             <hr />

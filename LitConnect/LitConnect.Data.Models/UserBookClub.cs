@@ -11,16 +11,18 @@ public class UserBookClub
     public string UserId { get; set; } = null!;
 
     [ForeignKey(nameof(UserId))]
-    [Comment("Reference to the member")]
     public ApplicationUser User { get; set; } = null!;
 
-    [Comment("ID of the book club the user is a member of")]
+    [Comment("ID of the book club")]
     public string BookClubId { get; set; } = null!;
 
     [ForeignKey(nameof(BookClubId))]
     [Comment("Reference to the book club")]
     public BookClub BookClub { get; set; } = null!;
 
-    [Comment("Date and time when the user joined or was approved to the book club")]
+    [Comment("Date when the user joined the book club")]
     public DateTime JoinedOn { get; set; }
+
+    [Comment("Indicates if the user is an admin of the book club")]
+    public bool IsAdmin { get; set; }
 }

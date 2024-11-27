@@ -21,4 +21,12 @@ public interface IBookClubService
     Task SetCurrentlyReadingAsync(string bookClubId, string bookId);
 
     Task<IEnumerable<BookClubBookViewModel>> GetBooksAsync(string bookClubId);
+
+    Task<BookClubMembersViewModel> GetMembersAsync(string bookClubId, string currentUserId);
+
+    Task SetAdminStatusAsync(string bookClubId, string userId, bool isAdmin);
+
+    Task<bool> IsUserAdminAsync(string bookClubId, string userId);
+
+    Task<bool> IsUserOwnerOrAdminAsync(string bookClubId, string userId);
 }

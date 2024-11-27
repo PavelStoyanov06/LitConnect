@@ -1,0 +1,96 @@
+﻿@using LitConnect.Web.ViewModels.BookClub
+@model BookClubMembersViewModel
+
+@{
+    ViewData["Title"] = $"{Model.BookClubName} - Members";
+}
+
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Book Clubs</a></li>
+            <li class="breadcrumb-item"><a asp-action="Details" asp-route-id="@Model.BookClubId">@Model.BookClubName</a></li>
+            <li class="breadcrumb-item active">Members</li>
+        </ol>
+    </nav>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">Members</h2>
+                <div class="search-box">
+                    <input type="text" id="memberSearch" class="form-control" placeholder="Search members...">
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Joined</th>
+                            <th>Role</th>
+                            @if (Model.IsCurrentUserOwner)
+                            {
+                                <th>Actions</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody id="membersTable">
+                        @foreach (var member in Model.Members)
+                        {
+                            <tr>
+                                <td>@member.UserName</td>
+                                <td>@member.Email</td>
+                                <td>@member.JoinedOn.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    @if (member.IsOwner)
+                                    {
+                                        <span class="badge bg-primary">Owner</span>
+                                    }
+                                    else if (member.IsAdmin)
+                                    {
+                                        <span class="badge bg-info">Admin</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Member</span>
+                                    }
+                                </td>
+                                @if (Model.IsCurrentUserOwner && !member.IsOwner)
+                                {
+                                    <td>
+                                        <form asp-action="SetAdmin" method="post" class="d-inline">
+                                            <input type="hidden" name="bookClubId" value="@Model.BookClubId" />
+                                            <input type="hidden" name="userId" value="@member.UserId" />
+                                            <input type="hidden" name="isAdmin" value="@(!member.IsAdmin)" />
+                                            <button type="submit" class="btn btn-sm @(member.IsAdmin ? "btn-warning" : "btn-success")">
+                                                @(member.IsAdmin ? "Remove Admin" : "Make Admin")
+                                            </button>
+                                        </form>
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('memberSearch').addEventListener('input', function(e) {
+            const searchText = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#membersTable tr');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchText) ? '' : 'none';
+            });
+        });
+    </script>
+}
