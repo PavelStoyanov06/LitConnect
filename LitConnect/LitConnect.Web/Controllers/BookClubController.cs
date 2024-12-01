@@ -2,12 +2,12 @@
 
 using LitConnect.Data.Models;
 using LitConnect.Services.Contracts;
-using LitConnect.Services.Implementations;
 using LitConnect.Web.ViewModels.BookClub;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
+[Authorize]
 public class BookClubController : Controller
 {
     private readonly IBookClubService _bookClubService;
@@ -98,7 +98,7 @@ public class BookClubController : Controller
         return View(new AddBookViewModel
         {
             BookClubId = id,
-            BookId = string.Empty // Initialize the required property
+            BookId = string.Empty
         });
     }
 
@@ -106,6 +106,13 @@ public class BookClubController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AddBook(AddBookViewModel model)
     {
+        var userId = _userManager.GetUserId(User);
+
+        if (!await _bookClubService.IsUserOwnerOrAdminAsync(model.BookClubId, userId))
+        {
+            return Forbid();
+        }
+
         if (!ModelState.IsValid)
         {
             var books = await _bookService.GetAllAsync();
@@ -145,14 +152,7 @@ public class BookClubController : Controller
     public async Task<IActionResult> SetAdmin(string bookClubId, string userId, bool isAdmin)
     {
         var currentUserId = _userManager.GetUserId(User);
-        var bookClub = await _bookClubService.GetDetailsAsync(bookClubId, currentUserId);
-
-        if (!bookClub.IsUserOwner)
-        {
-            return Forbid();
-        }
-
-        await _bookClubService.SetAdminStatusAsync(bookClubId, userId, isAdmin);
+        await _bookClubService.SetAdminStatusAsync(bookClubId, userId, currentUserId, isAdmin);
         return RedirectToAction(nameof(Members), new { id = bookClubId });
     }
 }

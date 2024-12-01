@@ -20,6 +20,10 @@ public class BookClubDetailsViewModel
 
     public bool IsUserOwner { get; set; }
 
+    public bool IsUserAdmin { get; set; }
+
+    public bool IsUserOwnerOrAdmin => IsUserOwner || IsUserAdmin;
+
     public IEnumerable<DiscussionInListViewModel> Discussions { get; set; }
         = new List<DiscussionInListViewModel>();
 

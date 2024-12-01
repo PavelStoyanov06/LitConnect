@@ -4,6 +4,7 @@ using LitConnect.Data;
 using LitConnect.Data.Models;
 using LitConnect.Services.Contracts;
 using LitConnect.Web.ViewModels.BookClub;
+using LitConnect.Web.ViewModels.Discussion;
 using LitConnect.Web.ViewModels.Meeting;
 using Microsoft.EntityFrameworkCore;
 
@@ -45,16 +46,17 @@ public class BookClubService : IBookClubService
                 MembersCount = bc.Users.Count,
                 IsUserMember = bc.Users.Any(u => u.UserId == userId),
                 IsUserOwner = bc.OwnerId == userId,
+                IsUserAdmin = bc.Users.Any(u => u.UserId == userId && u.IsAdmin),
                 Meetings = bc.Meetings
-                .Where(m => !m.IsDeleted)
-                .Select(m => new MeetingInListViewModel
-                {
-                    Id = m.Id,
-                    Title = m.Title,
-                    ScheduledDate = m.ScheduledDate,
-                    BookTitle = m.Book != null ? m.Book.Title : null
-                })
-                .ToList(),
+                    .Where(m => !m.IsDeleted)
+                    .Select(m => new MeetingInListViewModel
+                    {
+                        Id = m.Id,
+                        Title = m.Title,
+                        ScheduledDate = m.ScheduledDate,
+                        BookTitle = m.Book != null ? m.Book.Title : null
+                    })
+                    .ToList(),
                 CurrentBook = bc.CurrentBookId != null ? new BookClubBookViewModel
                 {
                     Id = bc.Books.First(b => b.Id == bc.CurrentBookId).Id,
@@ -62,19 +64,19 @@ public class BookClubService : IBookClubService
                     Author = bc.Books.First(b => b.Id == bc.CurrentBookId).Author,
                     IsCurrentlyReading = true,
                     Genres = bc.Books.First(b => b.Id == bc.CurrentBookId).Genres
-                .Select(bg => bg.Genre.Name)
-                .ToList()
+                        .Select(bg => bg.Genre.Name)
+                        .ToList()
                 } : null,
                 Books = bc.Books
-                .Select(b => new BookClubBookViewModel
-                {
-                    Id = b.Id,
-                    Title = b.Title,
-                    Author = b.Author,
-                    IsCurrentlyReading = b.Id == bc.CurrentBookId,
-                    Genres = b.Genres.Select(bg => bg.Genre.Name).ToList()
-                })
-                .ToList()
+                    .Select(b => new BookClubBookViewModel
+                    {
+                        Id = b.Id,
+                        Title = b.Title,
+                        Author = b.Author,
+                        IsCurrentlyReading = b.Id == bc.CurrentBookId,
+                        Genres = b.Genres.Select(bg => bg.Genre.Name).ToList()
+                    })
+                    .ToList()
             })
             .FirstOrDefaultAsync();
     }
@@ -91,7 +93,6 @@ public class BookClubService : IBookClubService
         await _context.BookClubs.AddAsync(bookClub);
         await _context.SaveChangesAsync();
 
-        // Add owner as a member
         await JoinBookClubAsync(bookClub.Id, ownerId);
 
         return bookClub.Id;
@@ -156,7 +157,6 @@ public class BookClubService : IBookClubService
 
             if (isCurrentlyReading)
             {
-                // First, remove current reading status from any other book
                 var currentlyReadingBooks = await _context.BookClubs
                     .Where(bc => bc.Id == bookClubId && bc.CurrentBookId != null)
                     .ToListAsync();
@@ -166,7 +166,6 @@ public class BookClubService : IBookClubService
                     bc.CurrentBookId = null;
                 }
 
-                // Set this book as currently reading
                 bookClub.CurrentBookId = bookId;
             }
 
@@ -219,7 +218,6 @@ public class BookClubService : IBookClubService
             throw new InvalidOperationException("Book is not in this book club");
         }
 
-        // Remove current reading status from any other book
         bookClub.CurrentBookId = bookId;
         await _context.SaveChangesAsync();
     }
@@ -306,8 +304,16 @@ public class BookClubService : IBookClubService
         };
     }
 
-    public async Task SetAdminStatusAsync(string bookClubId, string userId, bool isAdmin)
+    public async Task SetAdminStatusAsync(string bookClubId, string userId, string currentUserId, bool isAdmin)
     {
+        var bookClub = await _context.BookClubs
+            .FirstOrDefaultAsync(bc => bc.Id == bookClubId && !bc.IsDeleted);
+
+        if (bookClub == null || bookClub.OwnerId != currentUserId)
+        {
+            throw new InvalidOperationException("Not authorized to change admin status");
+        }
+
         var membership = await _context.UsersBookClubs
             .FirstOrDefaultAsync(ubc => ubc.BookClubId == bookClubId && ubc.UserId == userId);
 

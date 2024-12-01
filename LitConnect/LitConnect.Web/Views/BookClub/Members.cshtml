@@ -62,10 +62,10 @@
                                 @if (Model.IsCurrentUserOwner && !member.IsOwner)
                                 {
                                     <td>
-                                        <form asp-action="SetAdmin" method="post" class="d-inline">
+                                        <form asp-action="SetAdmin" method="post">
                                             <input type="hidden" name="bookClubId" value="@Model.BookClubId" />
                                             <input type="hidden" name="userId" value="@member.UserId" />
-                                            <input type="hidden" name="isAdmin" value="@(!member.IsAdmin)" />
+                                            <input type="hidden" name="isAdmin" value="@(member.IsAdmin ? "false" : "true")" />
                                             <button type="submit" class="btn btn-sm @(member.IsAdmin ? "btn-warning" : "btn-success")">
                                                 @(member.IsAdmin ? "Remove Admin" : "Make Admin")
                                             </button>
