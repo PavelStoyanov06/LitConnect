@@ -8,13 +8,16 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>@ViewData["Title"]</h1>
-        <a asp-action="Create" class="btn btn-primary">Create New Book Club</a>
+        <div class="d-flex gap-2">
+            <input type="text" id="bookClubSearch" class="form-control" placeholder="Search book clubs..." style="width: 200px;">
+            <a asp-action="Create" class="btn btn-primary">Create New Book Club</a>
+        </div>
     </div>
 
     <div class="row">
         @foreach (var club in Model)
         {
-            <div class="col-md-4 mb-4">
+            <div class="col-md-4 mb-4 bookclub-container">
                 <div class="card h-100">
                     <div class="card-body">
                         <h5 class="card-title">@club.Name</h5>
