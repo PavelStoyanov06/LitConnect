@@ -52,6 +52,7 @@ if (app.Environment.IsDevelopment())
     using (var scope = app.Services.CreateScope())
     {
         var dbContext = scope.ServiceProvider.GetRequiredService<LitConnectDbContext>();
+        dbContext.Database.Migrate();
         await GenreSeeder.SeedAsync(dbContext);
     }
 }
