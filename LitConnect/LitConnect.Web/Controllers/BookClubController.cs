@@ -155,4 +155,12 @@ public class BookClubController : Controller
         await _bookClubService.SetAdminStatusAsync(bookClubId, userId, currentUserId, isAdmin);
         return RedirectToAction(nameof(Members), new { id = bookClubId });
     }
+
+    [Authorize]
+    public async Task<IActionResult> MyClubs()
+    {
+        var userId = _userManager.GetUserId(User);
+        var clubs = await _bookClubService.GetUserClubsAsync(userId);
+        return View(clubs);
+    }
 }

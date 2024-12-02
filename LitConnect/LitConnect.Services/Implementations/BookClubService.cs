@@ -348,4 +348,19 @@ public class BookClubService : IBookClubService
         return bookClub.OwnerId == userId ||
                await IsUserAdminAsync(bookClubId, userId);
     }
+
+    public async Task<IEnumerable<BookClubAllViewModel>> GetUserClubsAsync(string userId)
+    {
+        return await _context.BookClubs
+            .Where(bc => !bc.IsDeleted && bc.Users.Any(u => u.UserId == userId))
+            .Select(bc => new BookClubAllViewModel
+            {
+                Id = bc.Id,
+                Name = bc.Name,
+                Description = bc.Description,
+                MembersCount = bc.Users.Count,
+                IsUserMember = true
+            })
+            .ToListAsync();
+    }
 }

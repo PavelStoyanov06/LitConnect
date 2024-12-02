@@ -31,4 +31,6 @@ public interface IBookClubService
     Task<bool> IsUserAdminAsync(string bookClubId, string userId);
 
     Task<bool> IsUserOwnerOrAdminAsync(string bookClubId, string userId);
+
+    Task<IEnumerable<BookClubAllViewModel>> GetUserClubsAsync(string userId);
 }
