@@ -8,10 +8,41 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/LitConnect.Web.styles.css" asp-append-version="true" />
+    <style>
+        .navbar {
+            background-color: #2c3e50 !important;
+        }
+
+        .footer {
+            background-color: #2c3e50;
+            padding: 1rem 0;
+            margin-top: auto;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1;
+        }
+
+        .btn-primary {
+            background-color: #34495e;
+            border-color: #34495e;
+        }
+
+            .btn-primary:hover {
+                background-color: #2c3e50;
+                border-color: #2c3e50;
+            }
+    </style>
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-primary border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-dark border-bottom box-shadow mb-3">
             <div class="container">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">LitConnect</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
@@ -55,33 +86,19 @@
         </main>
     </div>
 
-    <footer class="footer bg-dark text-light mt-5">
-        <div class="container py-4">
+    <footer class="footer text-light">
+        <div class="container">
             <div class="row">
-                <div class="col-md-4">
-                    <h5>About LitConnect</h5>
-                    <p>Connecting readers through virtual book clubs and shared literary experiences.</p>
-                </div>
-                <div class="col-md-4">
-                    <h5>Contact Us</h5>
-                    <p>
-                        <i class="fas fa-envelope"></i> Email: contact@litconnect.com<br>
-                        <i class="fas fa-phone"></i> Phone: (555) 123-4567<br>
-                        <i class="fas fa-map-marker-alt"></i> Address: 123 Book Street, Reading Town
+                <div class="col-md-8">
+                    <p class="mb-0">
+                        <i class="fas fa-envelope"></i> pavel.st.06@gmail.com |
+                        <i class="fas fa-phone"></i> 0888006915 |
+                        <i class="fas fa-map-marker-alt"></i> 123 Reader's Lane, Sofia
                     </p>
                 </div>
-                <div class="col-md-4">
-                    <h5>Follow Us</h5>
-                    <div class="social-links">
-                        <a href="#" class="text-light me-3"><i class="fab fa-facebook fa-2x"></i></a>
-                        <a href="#" class="text-light me-3"><i class="fab fa-twitter fa-2x"></i></a>
-                        <a href="#" class="text-light me-3"><i class="fab fa-instagram fa-2x"></i></a>
-                    </div>
+                <div class="col-md-4 text-end">
+                    <p class="mb-0">&copy; @DateTime.Now.Year LitConnect</p>
                 </div>
-            </div>
-            <hr class="mt-4 mb-3">
-            <div class="text-center">
-                <p class="mb-0">&copy; @DateTime.Now.Year - LitConnect. All rights reserved.</p>
             </div>
         </div>
     </footer>
