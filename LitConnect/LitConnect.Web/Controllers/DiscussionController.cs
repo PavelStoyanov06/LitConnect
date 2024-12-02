@@ -64,12 +64,19 @@ public class DiscussionController : Controller
     public async Task<IActionResult> Delete(string id)
     {
         var userId = _userManager.GetUserId(User);
-        if (!await _discussionService.IsUserAuthorAsync(id, userId))
+        var discussion = await _discussionService.GetDetailsAsync(id, userId);
+
+        if (discussion == null)
         {
-            return Forbid();
+            return NotFound();
         }
 
-        await _discussionService.DeleteAsync(id);
-        return RedirectToAction("Details", "BookClub", new { id = id });
+        if (await _discussionService.CanUserDeleteAsync(id, userId))
+        {
+            await _discussionService.DeleteAsync(id);
+            return RedirectToAction("Details", "BookClub", new { id = discussion.BookClubId });
+        }
+
+        return Forbid();
     }
 }

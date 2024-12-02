@@ -12,7 +12,7 @@ public interface IDiscussionService
 
     Task DeleteAsync(string id);
 
-    Task<bool> IsUserAuthorAsync(string discussionId, string userId);
+    Task<bool> CanUserDeleteAsync(string discussionId, string userId);
 
     Task<bool> ExistsAsync(string id);
 }

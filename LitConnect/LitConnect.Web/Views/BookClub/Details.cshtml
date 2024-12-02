@@ -6,14 +6,15 @@
 }
 
 <div class="container mt-4">
-    <div class="card">
-        <div class="card-header">
+    <!-- Book Club Header Card -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
             <div class="d-flex justify-content-between align-items-center">
                 <h2 class="mb-0">@Model.Name</h2>
                 <div>
                     @if (Model.IsUserMember)
                     {
-                        <a asp-action="Members" asp-route-id="@Model.Id" class="btn btn-info me-2">
+                        <a asp-action="Members" asp-route-id="@Model.Id" class="btn btn-light me-2">
                             <i class="fas fa-users"></i> Members (@Model.MembersCount)
                         </a>
                     }
@@ -47,13 +48,30 @@
     @if (Model.IsUserMember)
     {
         <!-- Books Section -->
-        <div class="mt-4">
+        <div class="mt-5">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3>Books</h3>
-                @if (Model.IsUserOwner || Model.IsUserAdmin)
-                {
-                    <a asp-action="AddBook" asp-route-id="@Model.Id" class="btn btn-primary">Add Book</a>
-                }
+                <h3 class="text-primary">Books</h3>
+                <div class="d-flex gap-3 align-items-center">
+                    <div class="input-group" style="width: 250px;">
+                        <input type="text" id="booksSearch" class="form-control" placeholder="Search books...">
+                        <div class="input-group-append">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            Sort By
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><button class="dropdown-item" type="button" id="sortBooksByTitle">Title</button></li>
+                            <li><button class="dropdown-item" type="button" id="sortBooksByAuthor">Author</button></li>
+                        </ul>
+                    </div>
+                    @if (Model.IsUserOwner || Model.IsUserAdmin)
+                    {
+                        <a asp-action="AddBook" asp-route-id="@Model.Id" class="btn btn-primary">Add Book</a>
+                    }
+                </div>
             </div>
 
             @if (Model.CurrentBook != null)
@@ -75,31 +93,24 @@
                 </div>
             }
 
-            @if (!Model.Books.Any())
-            {
-                <div class="alert alert-info">
-                    No books in the club library yet.
-                </div>
-            }
-            else
-            {
-                <div class="row">
-                    @foreach (var book in Model.Books)
-                    {
-                        <div class="col-md-4 mb-3">
-                            <div class="card h-100">
-                                <div class="card-body">
-                                    <h5 class="card-title">@book.Title</h5>
-                                    <h6 class="card-subtitle mb-2 text-muted">by @book.Author</h6>
-                                    <div class="mt-2">
-                                        @foreach (var genre in book.Genres)
-                                        {
-                                            <span class="badge bg-secondary me-1">@genre</span>
-                                        }
-                                    </div>
+            <div id="booksContainer" class="row">
+                @foreach (var book in Model.Books)
+                {
+                    <div class="col-md-4 mb-3 book-card">
+                        <div class="card h-100">
+                            <div class="card-body searchable-content">
+                                <h5 class="card-title">@book.Title</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">by @book.Author</h6>
+                                <div class="mt-2">
+                                    @foreach (var genre in book.Genres)
+                                    {
+                                        <span class="badge bg-secondary me-1">@genre</span>
+                                    }
                                 </div>
-                                <div class="card-footer">
-                                    <form asp-controller="ReadingList" asp-action="AddBook" method="post" class="d-inline">
+                            </div>
+                            <div class="card-footer">
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <form asp-controller="ReadingList" asp-action="AddBook" method="post">
                                         <input type="hidden" name="bookId" value="@book.Id" />
                                         <button type="submit" class="btn btn-success btn-sm">Add to Reading List</button>
                                     </form>
@@ -107,13 +118,13 @@
                                     {
                                         @if (!book.IsCurrentlyReading)
                                         {
-                                            <form asp-action="SetCurrentlyReading" method="post" class="d-inline">
+                                            <form asp-action="SetCurrentlyReading" method="post">
                                                 <input type="hidden" name="bookClubId" value="@Model.Id" />
                                                 <input type="hidden" name="bookId" value="@book.Id" />
                                                 <button type="submit" class="btn btn-primary btn-sm">Set as Current</button>
                                             </form>
                                         }
-                                        <form asp-action="RemoveBook" method="post" class="d-inline"
+                                        <form asp-action="RemoveBook" method="post"
                                               onsubmit="return confirm('Are you sure you want to remove this book?');">
                                             <input type="hidden" name="bookClubId" value="@Model.Id" />
                                             <input type="hidden" name="bookId" value="@book.Id" />
@@ -123,86 +134,107 @@
                                 </div>
                             </div>
                         </div>
-                    }
-                </div>
-            }
+                    </div>
+                }
+            </div>
         </div>
 
         <!-- Meetings Section -->
-        <div class="mt-4">
+        <div class="mt-5">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3>Meetings</h3>
-                @if (Model.IsUserOwner || Model.IsUserAdmin)
-                {
-                    <a asp-controller="Meeting" asp-action="Create" asp-route-bookClubId="@Model.Id"
-                       class="btn btn-primary">Schedule Meeting</a>
-                }
-            </div>
-
-            @if (!Model.Meetings.Any())
-            {
-                <div class="alert alert-info">
-                    No meetings scheduled yet.
-                </div>
-            }
-            else
-            {
-                <div class="row">
-                    @foreach (var meeting in Model.Meetings.OrderBy(m => m.ScheduledDate))
-                    {
-                        <div class="col-md-6 mb-3">
-                            <div class="card h-100">
-                                <div class="card-body">
-                                    <h5 class="card-title">@meeting.Title</h5>
-                                    <p class="card-text">
-                                        <strong>When:</strong> @meeting.ScheduledDate.ToString("MMM dd, yyyy HH:mm")
-                                    </p>
-                                    @if (meeting.BookTitle != null)
-                                    {
-                                        <p class="card-text">
-                                            <strong>Book:</strong> @meeting.BookTitle
-                                        </p>
-                                    }
-                                    @if (meeting.IsUpcoming)
-                                    {
-                                        <span class="badge bg-primary">Upcoming</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-secondary">Past</span>
-                                    }
-                                </div>
-                                <div class="card-footer">
-                                    <a asp-controller="Meeting" asp-action="Details" asp-route-id="@meeting.Id"
-                                       class="btn btn-info">Details</a>
-                                </div>
-                            </div>
+                <h3 class="text-primary">Meetings</h3>
+                <div class="d-flex gap-3 align-items-center">
+                    <div class="input-group" style="width: 250px;">
+                        <input type="text" id="meetingsSearch" class="form-control" placeholder="Search meetings...">
+                        <div class="input-group-append">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
                         </div>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            Sort By
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><button class="dropdown-item" type="button" id="sortMeetingsByTitle">Title</button></li>
+                            <li><button class="dropdown-item" type="button" id="sortMeetingsByDate">Date</button></li>
+                        </ul>
+                    </div>
+                    @if (Model.IsUserOwner || Model.IsUserAdmin)
+                    {
+                        <a asp-controller="Meeting" asp-action="Create" asp-route-bookClubId="@Model.Id"
+                           class="btn btn-primary">Schedule Meeting</a>
                     }
                 </div>
-            }
+            </div>
+
+            <div id="meetingsContainer" class="row">
+                @foreach (var meeting in Model.Meetings)
+                {
+                    <div class="col-md-6 mb-3 meeting-card">
+                        <div class="card h-100 @(meeting.IsUpcoming ? "border-primary" : "")">
+                            <div class="card-body searchable-content">
+                                <h5 class="card-title">@meeting.Title</h5>
+                                <p class="card-text">
+                                    <strong>When:</strong> @meeting.ScheduledDate.ToString("MMM dd, yyyy HH:mm")
+                                </p>
+                                @if (meeting.BookTitle != null)
+                                {
+                                    <p class="card-text">
+                                        <strong>Book:</strong> @meeting.BookTitle
+                                    </p>
+                                }
+                                @if (meeting.IsUpcoming)
+                                {
+                                    <span class="badge bg-primary">Upcoming</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Past</span>
+                                }
+                            </div>
+                            <div class="card-footer text-end">
+                                <a asp-controller="Meeting" asp-action="Details" asp-route-id="@meeting.Id"
+                                   class="btn btn-info btn-sm">Details</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
 
         <!-- Discussions Section -->
-        <div class="mt-4">
+        <div class="mt-5">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3>Discussions</h3>
-                <a asp-controller="Discussion" asp-action="Create" asp-route-bookClubId="@Model.Id"
-                   class="btn btn-primary">Start New Discussion</a>
+                <h3 class="text-primary">Discussions</h3>
+                <div class="d-flex gap-3 align-items-center">
+                    <div class="input-group" style="width: 250px;">
+                        <input type="text" id="discussionsSearch" class="form-control" placeholder="Search discussions...">
+                        <div class="input-group-append">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            Sort By
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><button class="dropdown-item" type="button" id="sortDiscussionsByTitle">Title</button></li>
+                            <li><button class="dropdown-item" type="button" id="sortDiscussionsByDate">Date</button></li>
+                        </ul>
+                    </div>
+                    @if (Model.IsUserMember)
+                    {
+                        <a asp-controller="Discussion" asp-action="Create" asp-route-bookClubId="@Model.Id"
+                           class="btn btn-primary">Start New Discussion</a>
+                    }
+                </div>
             </div>
 
-            @if (!Model.Discussions.Any())
-            {
-                <div class="alert alert-info">
-                    No discussions yet. Be the first to start one!
-                </div>
-            }
-            else
-            {
-                <div class="list-group">
-                    @foreach (var discussion in Model.Discussions)
-                    {
-                        <div class="list-group-item">
+            <div id="discussionsContainer" class="list-group">
+                @foreach (var discussion in Model.Discussions)
+                {
+                    <div class="list-group-item discussion-item">
+                        <div class="searchable-content">
                             <div class="d-flex w-100 justify-content-between">
                                 <h5 class="mb-1">@discussion.Title</h5>
                                 <small class="text-muted">@discussion.CreatedOn.ToString("MMM dd, yyyy")</small>
@@ -212,14 +244,14 @@
                             {
                                 <small class="text-muted">Discussing: @discussion.BookTitle</small>
                             }
-                            <div class="mt-2">
-                                <a asp-controller="Discussion" asp-action="Details" asp-route-id="@discussion.Id"
-                                   class="btn btn-info btn-sm">View Discussion</a>
-                            </div>
                         </div>
-                    }
-                </div>
-            }
+                        <div class="mt-2">
+                            <a asp-controller="Discussion" asp-action="Details" asp-route-id="@discussion.Id"
+                               class="btn btn-info btn-sm">View Discussion</a>
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
     }
     else
@@ -229,3 +261,83 @@
         </div>
     }
 </div>
+
+@section Scripts {
+    <script>
+    // Search functionality
+    function setupSearch(searchId, itemClass, contentClass = '.searchable-content') {
+        const searchInput = document.getElementById(searchId);
+        if (!searchInput) return;
+
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const items = document.getElementsByClassName(itemClass);
+
+            Array.from(items).forEach(item => {
+                const content = item.querySelector(contentClass);
+                const text = content.textContent.toLowerCase();
+                item.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+    }
+
+    // Sorting functionality
+    function sortByString(container, items, key) {
+        const itemsArray = Array.from(items);
+        itemsArray.sort((a, b) => {
+            const aText = a.querySelector(key).textContent.toLowerCase();
+            const bText = b.querySelector(key).textContent.toLowerCase();
+            return aText.localeCompare(bText);
+        });
+        itemsArray.forEach(item => container.appendChild(item));
+    }
+
+    function sortByDate(container, items, newest = true) {
+        const itemsArray = Array.from(items);
+        itemsArray.sort((a, b) => {
+            const aDate = new Date(a.querySelector('small.text-muted').textContent);
+            const bDate = new Date(b.querySelector('small.text-muted').textContent);
+            return newest ? bDate - aDate : aDate - bDate;
+        });
+        itemsArray.forEach(item => container.appendChild(item));
+    }
+
+    // Set up search
+    setupSearch('booksSearch', 'book-card');
+    setupSearch('meetingsSearch', 'meeting-card');
+    setupSearch('discussionsSearch', 'discussion-item');
+
+    // Books sorting
+    document.getElementById('sortBooksByTitle')?.addEventListener('click', () => {
+        sortByString(document.getElementById('booksContainer'), document.getElementsByClassName('book-card'), '.card-title');
+    });
+
+    document.getElementById('sortBooksByAuthor')?.addEventListener('click', () => {
+        sortByString(document.getElementById('booksContainer'), document.getElementsByClassName('book-card'), '.card-subtitle');
+    });
+
+    // Meetings sorting
+    document.getElementById('sortMeetingsByTitle')?.addEventListener('click', () => {
+        sortByString(document.getElementById('meetingsContainer'), document.getElementsByClassName('meeting-card'), '.card-title');
+    });
+
+    document.getElementById('sortMeetingsByDate')?.addEventListener('click', () => {
+        sortByDate(document.getElementById('meetingsContainer'), document.getElementsByClassName('meeting-card'));
+    });
+
+    // Discussions sorting
+    document.getElementById('sortDiscussionsByTitle')?.addEventListener('click', () => {
+        sortByString(document.getElementById('discussionsContainer'), document.getElementsByClassName('discussion-item'), 'h5');
+    });
+
+    document.getElementById('sortDiscussionsByDate')?.addEventListener('click', () => {
+        sortByDate(document.getElementById('discussionsContainer'),
+        document.getElementById('sortDiscussionsByTitle')?.addEventListener('click', () => {
+            sortByString(document.getElementById('discussionsContainer'), document.getElementsByClassName('discussion-item'), 'h5');
+        });
+
+        document.getElementById('sortDiscussionsByDate')?.addEventListener('click', () => {
+            sortByDate(document.getElementById('discussionsContainer'), document.getElementsByClassName('discussion-item'));
+        });
+    </script>
+        }

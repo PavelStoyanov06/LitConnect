@@ -1,6 +1,6 @@
-﻿using LitConnect.Web.ViewModels.Comment;
+﻿namespace LitConnect.Web.ViewModels.Discussion;
 
-namespace LitConnect.Web.ViewModels.Discussion;
+using LitConnect.Web.ViewModels.Comment;
 
 public class DiscussionDetailsViewModel
 {
@@ -21,6 +21,12 @@ public class DiscussionDetailsViewModel
     public DateTime CreatedOn { get; set; }
 
     public bool IsCurrentUserAuthor { get; set; }
+
+    public bool IsCurrentUserAdmin { get; set; }
+
+    public bool IsCurrentUserOwner { get; set; }
+
+    public bool CanDelete => IsCurrentUserAuthor || IsCurrentUserAdmin || IsCurrentUserOwner;
 
     public IEnumerable<CommentViewModel> Comments { get; set; }
         = new List<CommentViewModel>();

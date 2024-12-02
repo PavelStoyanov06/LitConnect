@@ -47,6 +47,8 @@ public class DiscussionService : IDiscussionService
                 BookTitle = d.Book != null ? d.Book.Title : null,
                 CreatedOn = d.CreatedOn,
                 IsCurrentUserAuthor = d.AuthorId == userId,
+                IsCurrentUserAdmin = d.BookClub.Users.Any(u => u.UserId == userId && u.IsAdmin),
+                IsCurrentUserOwner = d.BookClub.OwnerId == userId,
                 Comments = d.Comments.Select(c => new CommentViewModel
                 {
                     Id = c.Id,
@@ -55,7 +57,7 @@ public class DiscussionService : IDiscussionService
                     CreatedOn = c.CreatedOn,
                     IsCurrentUserAuthor = c.AuthorId == userId
                 }).ToList(),
-                NewComment = new CommentCreateViewModel { DiscussionId = d.Id } 
+                NewComment = new CommentCreateViewModel { DiscussionId = d.Id }
             })
             .FirstOrDefaultAsync();
     }
@@ -88,10 +90,21 @@ public class DiscussionService : IDiscussionService
         }
     }
 
-    public async Task<bool> IsUserAuthorAsync(string discussionId, string userId)
+    public async Task<bool> CanUserDeleteAsync(string discussionId, string userId)
     {
-        return await _context.Discussions
-            .AnyAsync(d => d.Id == discussionId && d.AuthorId == userId);
+        var discussion = await _context.Discussions
+            .Include(d => d.BookClub)
+                .ThenInclude(bc => bc.Users)
+            .FirstOrDefaultAsync(d => d.Id == discussionId && !d.IsDeleted);
+
+        if (discussion == null)
+        {
+            return false;
+        }
+
+        return discussion.AuthorId == userId ||
+               discussion.BookClub.Users.Any(u => u.UserId == userId && u.IsAdmin) ||
+               discussion.BookClub.OwnerId == userId;
     }
 
     public async Task<bool> ExistsAsync(string id)
