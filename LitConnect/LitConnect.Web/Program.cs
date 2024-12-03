@@ -5,7 +5,6 @@ using LitConnect.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using LitConnect.Services.Implementations;
-using LitConnect.Data.Seeding;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,13 +50,7 @@ if (app.Environment.IsDevelopment())
     using (var scope = app.Services.CreateScope())
     {
         var dbContext = scope.ServiceProvider.GetRequiredService<LitConnectDbContext>();
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-
         dbContext.Database.EnsureCreated();
-        dbContext.Database.Migrate();
-        await GenreSeeder.SeedAsync(dbContext);
-        await RoleSeeder.SeedRolesAsync(roleManager, userManager);
     }
 }
 else

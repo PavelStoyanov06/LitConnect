@@ -1,5 +1,6 @@
 ﻿namespace LitConnect.Data;
 
+using LitConnect.Data.Configurations.EntityConfigurations;
 using LitConnect.Data.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -71,5 +72,12 @@ public class LitConnectDbContext : IdentityDbContext<ApplicationUser>
             .WithMany()
             .HasForeignKey(bc => bc.CurrentBookId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        // Seed data configurations
+        builder.ConfigureIdentity();
+        builder.ConfigureGenre();
+        builder.ConfigureBook();
+        builder.ConfigureBookClub();
+        builder.ConfigureUserBookClub();
     }
 }
