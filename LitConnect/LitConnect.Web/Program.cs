@@ -18,7 +18,7 @@ builder.Services.AddDbContext<LitConnectDbContext>(options =>
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
+builder.Services.AddDefaultIdentity<ApplicationUser>(options => {
     options.SignIn.RequireConfirmedAccount = false;
     options.Password.RequireDigit = true;
     options.Password.RequireLowercase = true;
@@ -26,9 +26,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
     options.Password.RequireUppercase = true;
     options.Password.RequiredLength = 6;
 })
-.AddEntityFrameworkStores<LitConnectDbContext>()
-.AddDefaultTokenProviders();
-
+.AddEntityFrameworkStores<LitConnectDbContext>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
@@ -64,6 +62,7 @@ else
 }
 
 app.UseHttpsRedirection();
+app.UseStatusCodePagesWithReExecute("/Error/{0}");
 app.UseStaticFiles();
 
 app.UseRouting();
