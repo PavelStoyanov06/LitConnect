@@ -10,7 +10,10 @@
         <h1>@ViewData["Title"]</h1>
         <div class="d-flex gap-2">
             <input type="text" id="bookSearch" class="form-control" placeholder="Search books..." style="width: 200px;">
-            <a asp-action="Create" class="btn btn-primary">Add New Book</a>
+            @if (User.IsInRole("Administrator"))
+            {
+                <a asp-action="Create" class="btn btn-primary">Add New Book</a>
+            }
         </div>
     </div>
 

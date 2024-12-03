@@ -21,6 +21,7 @@ public class BookController : Controller
         return View(books);
     }
 
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Create()
     {
         ViewBag.Genres = await _bookService.GetAllGenresAsync();
@@ -29,6 +30,7 @@ public class BookController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Create(BookCreateViewModel model)
     {
         if (!ModelState.IsValid)
