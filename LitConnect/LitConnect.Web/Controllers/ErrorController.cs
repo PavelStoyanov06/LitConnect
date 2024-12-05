@@ -12,7 +12,7 @@ public class ErrorController : Controller
             case 404:
                 return View("NotFound");
             case 401:
-                return RedirectToAction("Login", "Account", new { area = "Identity" });
+                return RedirectToPage("/Identity/Account/Login");
             default:
                 return View("Error");
         }

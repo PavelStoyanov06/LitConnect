@@ -14,4 +14,8 @@
     <PackageReference Include="NUnit.Analyzers" Version="3.10.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\LitConnect.Web\LitConnect.Web.csproj" />
+  </ItemGroup>
+
 </Project>
