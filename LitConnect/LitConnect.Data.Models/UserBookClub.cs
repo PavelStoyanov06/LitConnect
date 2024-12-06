@@ -25,4 +25,7 @@ public class UserBookClub
 
     [Comment("Indicates if the user is an admin of the book club")]
     public bool IsAdmin { get; set; }
+
+    [Comment("Indicates if the membership is deleted")]
+    public bool IsDeleted { get; set; } = false;
 }
