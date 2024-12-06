@@ -117,6 +117,16 @@ public class BookServiceTests : IDisposable
 
     private async Task SeedBooksAsync()
     {
+        // Clear existing data first
+        var existingBooks = await dbContext.Books.ToListAsync();
+        var existingGenres = await dbContext.Genres.ToListAsync();
+        var existingBookGenres = await dbContext.BooksGenres.ToListAsync();
+
+        dbContext.BooksGenres.RemoveRange(existingBookGenres);
+        dbContext.Books.RemoveRange(existingBooks);
+        dbContext.Genres.RemoveRange(existingGenres);
+        await dbContext.SaveChangesAsync();
+
         // Add test genres
         await dbContext.Genres.AddRangeAsync(new[]
         {
@@ -156,9 +166,9 @@ public class BookServiceTests : IDisposable
         // Add book-genre relationships
         await dbContext.BooksGenres.AddRangeAsync(new[]
         {
-            new BookGenre { BookId = "book1", GenreId = "genre1", IsDeleted = false },
-            new BookGenre { BookId = "book2", GenreId = "genre2", IsDeleted = false }
-        });
+        new BookGenre { BookId = "book1", GenreId = "genre1", IsDeleted = false },
+        new BookGenre { BookId = "book2", GenreId = "genre2", IsDeleted = false }
+    });
 
         await dbContext.SaveChangesAsync();
     }

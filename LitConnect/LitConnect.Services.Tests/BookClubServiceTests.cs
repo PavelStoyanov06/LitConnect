@@ -37,7 +37,6 @@ public class BookClubServiceTests : IDisposable
     [Test]
     public async Task GetAllAsync_ShouldReturnAllNonDeletedBookClubs()
     {
-        // Arrange
         var allBookClubs = await dbContext.BookClubs.ToListAsync();
         foreach (var bookClub in allBookClubs)
         {
@@ -47,10 +46,8 @@ public class BookClubServiceTests : IDisposable
 
         await SeedDataAsync();
 
-        // Act
         var result = await bookClubService.GetAllAsync("user1");
 
-        // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Count(), Is.EqualTo(2));
     }
@@ -58,25 +55,24 @@ public class BookClubServiceTests : IDisposable
     [Test]
     public async Task GetDetailsAsync_WithValidId_ShouldReturnCorrectDetails()
     {
-        // Arrange
         await SeedDataAsync();
         var bookClubId = "bookclub1";
         var userId = "user1";
 
-        // Act
         var result = await bookClubService.GetDetailsAsync(bookClubId, userId);
 
-        // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result!.Name, Is.EqualTo("Test Book Club 1"));
-        Assert.That(result.IsUserMember, Is.True);
-        Assert.That(result.IsUserOwner, Is.True);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result!.Name, Is.EqualTo("Test Book Club 1"));
+            Assert.That(result.IsUserMember, Is.True);
+            Assert.That(result.IsUserOwner, Is.True);
+        });
     }
 
     [Test]
     public async Task CreateAsync_ShouldCreateNewBookClub()
     {
-        // Arrange
         var model = new BookClubCreateViewModel
         {
             Name = "New Book Club",
@@ -84,10 +80,8 @@ public class BookClubServiceTests : IDisposable
         };
         var ownerId = "user1";
 
-        // Act
         var bookClubId = await bookClubService.CreateAsync(model, ownerId);
 
-        // Assert
         var createdClub = await dbContext.BookClubs.FindAsync(bookClubId);
         Assert.That(createdClub, Is.Not.Null);
         Assert.That(createdClub!.Name, Is.EqualTo(model.Name));
@@ -97,15 +91,12 @@ public class BookClubServiceTests : IDisposable
     [Test]
     public async Task JoinBookClubAsync_ShouldAddUserToClub()
     {
-        // Arrange
         await SeedDataAsync();
         var bookClubId = "bookclub2";
         var userId = "user2";
 
-        // Act
         await bookClubService.JoinBookClubAsync(bookClubId, userId);
 
-        // Assert
         var membership = await dbContext.UsersBookClubs
             .FirstOrDefaultAsync(ubc => ubc.BookClubId == bookClubId && ubc.UserId == userId);
         Assert.That(membership, Is.Not.Null);
@@ -114,15 +105,12 @@ public class BookClubServiceTests : IDisposable
     [Test]
     public async Task LeaveBookClubAsync_ShouldRemoveUserFromClub()
     {
-        // Arrange
         await SeedDataAsync();
         var bookClubId = "bookclub1";
         var userId = "user2";
 
-        // Act
         await bookClubService.LeaveBookClubAsync(bookClubId, userId);
 
-        // Assert
         var membership = await dbContext.UsersBookClubs
             .FirstOrDefaultAsync(ubc => ubc.BookClubId == bookClubId && ubc.UserId == userId);
         Assert.That(membership, Is.Null);
@@ -131,15 +119,12 @@ public class BookClubServiceTests : IDisposable
     [Test]
     public async Task AddBookAsync_ShouldAddBookToClub()
     {
-        // Arrange
         await SeedDataAsync();
         var bookClubId = "bookclub1";
         var bookId = "book1";
 
-        // Act
         await bookClubService.AddBookAsync(bookClubId, bookId, false);
 
-        // Assert
         var bookClub = await dbContext.BookClubs
             .Include(bc => bc.Books)
             .FirstOrDefaultAsync(bc => bc.Id == bookClubId);
@@ -149,16 +134,14 @@ public class BookClubServiceTests : IDisposable
     [Test]
     public async Task SetCurrentlyReadingAsync_ShouldUpdateCurrentBook()
     {
-        // Arrange
         await SeedDataAsync();
         var bookClubId = "bookclub1";
         var bookId = "book1";
+
         await bookClubService.AddBookAsync(bookClubId, bookId, false);
 
-        // Act
         await bookClubService.SetCurrentlyReadingAsync(bookClubId, bookId);
 
-        // Assert
         var bookClub = await dbContext.BookClubs.FindAsync(bookClubId);
         Assert.That(bookClub!.CurrentBookId, Is.EqualTo(bookId));
     }
@@ -166,16 +149,14 @@ public class BookClubServiceTests : IDisposable
     [Test]
     public async Task RemoveBookAsync_ShouldRemoveBookFromClub()
     {
-        // Arrange
         await SeedDataAsync();
         var bookClubId = "bookclub1";
         var bookId = "book1";
+
         await bookClubService.AddBookAsync(bookClubId, bookId, false);
 
-        // Act
         await bookClubService.RemoveBookAsync(bookClubId, bookId);
 
-        // Assert
         var bookClub = await dbContext.BookClubs
             .Include(bc => bc.Books)
             .FirstOrDefaultAsync(bc => bc.Id == bookClubId);
@@ -185,35 +166,45 @@ public class BookClubServiceTests : IDisposable
     [Test]
     public async Task IsUserAdminAsync_WithAdmin_ShouldReturnTrue()
     {
-        // Arrange
         await SeedDataAsync();
         var bookClubId = "bookclub1";
         var userId = "user2";
         await SetUserAsAdmin(bookClubId, userId);
 
-        // Act
         var result = await bookClubService.IsUserAdminAsync(bookClubId, userId);
 
-        // Assert
         Assert.That(result, Is.True);
     }
 
     [Test]
     public async Task GetUserClubsAsync_ShouldReturnUserClubs()
     {
-        // Arrange
         await SeedDataAsync();
         var userId = "user1";
 
-        // Act
         var result = await bookClubService.GetUserClubsAsync(userId);
 
-        // Assert
         Assert.That(result.Count(), Is.EqualTo(1));
     }
 
     private async Task SeedDataAsync()
     {
+        // Clear existing data first
+        var existingBookClubs = await dbContext.BookClubs.ToListAsync();
+        var existingUsers = await dbContext.Users.ToListAsync();
+        var existingMemberships = await dbContext.UsersBookClubs.ToListAsync();
+        var existingBooks = await dbContext.Books.ToListAsync();
+        var existingDiscussions = await dbContext.Discussions.ToListAsync();
+        var existingMeetings = await dbContext.Meetings.ToListAsync();
+
+        dbContext.Discussions.RemoveRange(existingDiscussions);
+        dbContext.Meetings.RemoveRange(existingMeetings);
+        dbContext.UsersBookClubs.RemoveRange(existingMemberships);
+        dbContext.BookClubs.RemoveRange(existingBookClubs);
+        dbContext.Books.RemoveRange(existingBooks);
+        dbContext.Users.RemoveRange(existingUsers);
+        await dbContext.SaveChangesAsync();
+
         var user1 = new ApplicationUser
         {
             Id = "user1",
@@ -232,30 +223,8 @@ public class BookClubServiceTests : IDisposable
             LastName = "User 2"
         };
 
-        var bookClub1 = new BookClub
-        {
-            Id = "bookclub1",
-            Name = "Test Book Club 1",
-            Description = "Description 1",
-            OwnerId = "user1",
-            IsDeleted = false
-        };
-
-        var bookClub2 = new BookClub
-        {
-            Id = "bookclub2",
-            Name = "Test Book Club 2",
-            Description = "Description 2",
-            OwnerId = "user1",
-            IsDeleted = false
-        };
-
-        var membership = new UserBookClub
-        {
-            UserId = "user1",
-            BookClubId = "bookclub1",
-            JoinedOn = DateTime.UtcNow
-        };
+        await dbContext.Users.AddRangeAsync(user1, user2);
+        await dbContext.SaveChangesAsync();
 
         var book = new Book
         {
@@ -265,11 +234,65 @@ public class BookClubServiceTests : IDisposable
             IsDeleted = false
         };
 
-        await dbContext.Users.AddRangeAsync(user1, user2);
         await dbContext.Books.AddAsync(book);
+        await dbContext.SaveChangesAsync();
+
+        var bookClub1 = new BookClub
+        {
+            Id = "bookclub1",
+            Name = "Test Book Club 1",
+            Description = "Description 1",
+            OwnerId = user1.Id,
+            IsDeleted = false,
+            Books = new List<Book> { book }
+        };
+
+        var bookClub2 = new BookClub
+        {
+            Id = "bookclub2",
+            Name = "Test Book Club 2",
+            Description = "Description 2",
+            OwnerId = user1.Id,
+            IsDeleted = false
+        };
+
         await dbContext.BookClubs.AddRangeAsync(bookClub1, bookClub2);
+        await dbContext.SaveChangesAsync();
+
+        var membership = new UserBookClub
+        {
+            UserId = user1.Id,
+            BookClubId = bookClub1.Id,
+            JoinedOn = DateTime.UtcNow,
+            IsAdmin = false
+        };
+
         await dbContext.UsersBookClubs.AddAsync(membership);
         await dbContext.SaveChangesAsync();
+
+        // Add a meeting and discussion for complete relationship testing
+        var meeting = new Meeting
+        {
+            Id = "meeting1",
+            Title = "Test Meeting",
+            BookClubId = bookClub1.Id,
+            ScheduledDate = DateTime.UtcNow.AddDays(1)
+        };
+
+        var discussion = new Discussion
+        {
+            Id = "discussion1",
+            Title = "Test Discussion",
+            Content = "Test Content",
+            BookClubId = bookClub1.Id,
+            AuthorId = user1.Id,
+            CreatedOn = DateTime.UtcNow
+        };
+
+        await dbContext.Meetings.AddAsync(meeting);
+        await dbContext.Discussions.AddAsync(discussion);
+        await dbContext.SaveChangesAsync();
+
         dbContext.ChangeTracker.Clear();
     }
 

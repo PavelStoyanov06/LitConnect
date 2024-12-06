@@ -98,6 +98,11 @@ public class GenreServiceTests : IDisposable
 
     private async Task SeedDataAsync()
     {
+        // Clear existing genres first
+        var existingGenres = await dbContext.Genres.ToListAsync();
+        dbContext.Genres.RemoveRange(existingGenres);
+        await dbContext.SaveChangesAsync();
+
         var genres = new[]
         {
             new Genre
@@ -122,7 +127,6 @@ public class GenreServiceTests : IDisposable
 
         await dbContext.Genres.AddRangeAsync(genres);
         await dbContext.SaveChangesAsync();
-        dbContext.ChangeTracker.Clear();
     }
 
     protected virtual void Dispose(bool disposing)

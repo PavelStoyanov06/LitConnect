@@ -42,7 +42,7 @@ public class BookClubService : IBookClubService
                 Name = bc.Name,
                 Description = bc.Description,
                 OwnerId = bc.OwnerId,
-                OwnerName = $"{bc.Owner.FirstName} {bc.Owner.LastName}",
+                OwnerName = bc.Owner.FirstName + " " + bc.Owner.LastName,
                 MembersCount = bc.Users.Count,
                 IsUserMember = bc.Users.Any(u => u.UserId == userId),
                 IsUserOwner = bc.OwnerId == userId,
@@ -54,19 +54,20 @@ public class BookClubService : IBookClubService
                         Id = m.Id,
                         Title = m.Title,
                         ScheduledDate = m.ScheduledDate,
-                        BookTitle = m.Book != null ? m.Book.Title : null
+                        BookTitle = m.Book.Title
                     })
                     .ToList(),
-                CurrentBook = bc.CurrentBookId != null ? new BookClubBookViewModel
-                {
-                    Id = bc.Books.First(b => b.Id == bc.CurrentBookId).Id,
-                    Title = bc.Books.First(b => b.Id == bc.CurrentBookId).Title,
-                    Author = bc.Books.First(b => b.Id == bc.CurrentBookId).Author,
-                    IsCurrentlyReading = true,
-                    Genres = bc.Books.First(b => b.Id == bc.CurrentBookId).Genres
-                        .Select(bg => bg.Genre.Name)
-                        .ToList()
-                } : null,
+                CurrentBook = bc.CurrentBookId == null ? null : bc.Books
+                    .Where(b => b.Id == bc.CurrentBookId)
+                    .Select(b => new BookClubBookViewModel
+                    {
+                        Id = b.Id,
+                        Title = b.Title,
+                        Author = b.Author,
+                        IsCurrentlyReading = true,
+                        Genres = b.Genres.Select(bg => bg.Genre.Name).ToList()
+                    })
+                    .FirstOrDefault(),
                 Books = bc.Books
                     .Select(b => new BookClubBookViewModel
                     {
