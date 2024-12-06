@@ -32,6 +32,7 @@ public class BookServiceTests : IDisposable
         // Reset the database before each test
         dbContext.Database.EnsureDeleted();
         dbContext.Database.EnsureCreated();
+        dbContext.ChangeTracker.Clear();
     }
 
     [Test]

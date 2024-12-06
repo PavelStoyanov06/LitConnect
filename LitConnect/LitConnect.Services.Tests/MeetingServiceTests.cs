@@ -31,6 +31,7 @@ public class MeetingServiceTests : IDisposable
     {
         dbContext.Database.EnsureDeleted();
         dbContext.Database.EnsureCreated();
+        dbContext.ChangeTracker.Clear();
     }
 
     [Test]
@@ -183,6 +184,7 @@ public class MeetingServiceTests : IDisposable
         await dbContext.Books.AddAsync(book);
         await dbContext.Meetings.AddRangeAsync(meetings);
         await dbContext.SaveChangesAsync();
+        dbContext.ChangeTracker.Clear();
     }
 
     protected virtual void Dispose(bool disposing)

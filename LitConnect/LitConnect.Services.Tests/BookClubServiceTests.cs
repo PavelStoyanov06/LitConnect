@@ -22,7 +22,7 @@ public class BookClubServiceTests : IDisposable
             .UseInMemoryDatabase($"LitConnectBookClubTestDb_{Guid.NewGuid()}")
             .Options;
 
-        this.dbContext = new LitConnectDbContext(this.dbOptions);
+        this.dbContext = new TestLitConnectDbContext(this.dbOptions);
         this.bookClubService = new BookClubService(this.dbContext);
     }
 
@@ -31,17 +31,24 @@ public class BookClubServiceTests : IDisposable
     {
         dbContext.Database.EnsureDeleted();
         dbContext.Database.EnsureCreated();
+        dbContext.ChangeTracker.Clear();
     }
 
     [Test]
     public async Task GetAllAsync_ShouldReturnAllNonDeletedBookClubs()
     {
         // Arrange
+        var allBookClubs = await dbContext.BookClubs.ToListAsync();
+        foreach (var bookClub in allBookClubs)
+        {
+            dbContext.BookClubs.Remove(bookClub);
+        }
+        await dbContext.SaveChangesAsync();
+
         await SeedDataAsync();
-        var userId = "user1";
 
         // Act
-        var result = await bookClubService.GetAllAsync(userId);
+        var result = await bookClubService.GetAllAsync("user1");
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -207,73 +214,63 @@ public class BookClubServiceTests : IDisposable
 
     private async Task SeedDataAsync()
     {
-        var users = new[]
+        var user1 = new ApplicationUser
         {
-            new ApplicationUser
-            {
-                Id = "user1",
-                UserName = "user1@test.com",
-                Email = "user1@test.com",
-                FirstName = "Test",
-                LastName = "User 1"
-            },
-            new ApplicationUser
-            {
-                Id = "user2",
-                UserName = "user2@test.com",
-                Email = "user2@test.com",
-                FirstName = "Test",
-                LastName = "User 2"
-            }
+            Id = "user1",
+            UserName = "user1@test.com",
+            Email = "user1@test.com",
+            FirstName = "Test",
+            LastName = "User 1"
         };
 
-        var bookClubs = new[]
+        var user2 = new ApplicationUser
         {
-            new BookClub
-            {
-                Id = "bookclub1",
-                Name = "Test Book Club 1",
-                Description = "Description 1",
-                OwnerId = "user1",
-                IsDeleted = false
-            },
-            new BookClub
-            {
-                Id = "bookclub2",
-                Name = "Test Book Club 2",
-                Description = "Description 2",
-                OwnerId = "user2",
-                IsDeleted = false
-            }
+            Id = "user2",
+            UserName = "user2@test.com",
+            Email = "user2@test.com",
+            FirstName = "Test",
+            LastName = "User 2"
         };
 
-        var books = new[]
+        var bookClub1 = new BookClub
         {
-            new Book
-            {
-                Id = "book1",
-                Title = "Test Book 1",
-                Author = "Author 1",
-                IsDeleted = false
-            }
+            Id = "bookclub1",
+            Name = "Test Book Club 1",
+            Description = "Description 1",
+            OwnerId = "user1",
+            IsDeleted = false
         };
 
-        var memberships = new[]
+        var bookClub2 = new BookClub
         {
-            new UserBookClub
-            {
-                UserId = "user1",
-                BookClubId = "bookclub1",
-                JoinedOn = DateTime.UtcNow,
-                IsAdmin = false
-            }
+            Id = "bookclub2",
+            Name = "Test Book Club 2",
+            Description = "Description 2",
+            OwnerId = "user1",
+            IsDeleted = false
         };
 
-        await dbContext.Users.AddRangeAsync(users);
-        await dbContext.Books.AddRangeAsync(books);
-        await dbContext.BookClubs.AddRangeAsync(bookClubs);
-        await dbContext.UsersBookClubs.AddRangeAsync(memberships);
+        var membership = new UserBookClub
+        {
+            UserId = "user1",
+            BookClubId = "bookclub1",
+            JoinedOn = DateTime.UtcNow
+        };
+
+        var book = new Book
+        {
+            Id = "book1",
+            Title = "Test Book",
+            Author = "Test Author",
+            IsDeleted = false
+        };
+
+        await dbContext.Users.AddRangeAsync(user1, user2);
+        await dbContext.Books.AddAsync(book);
+        await dbContext.BookClubs.AddRangeAsync(bookClub1, bookClub2);
+        await dbContext.UsersBookClubs.AddAsync(membership);
         await dbContext.SaveChangesAsync();
+        dbContext.ChangeTracker.Clear();
     }
 
     private async Task SetUserAsAdmin(string bookClubId, string userId)

@@ -31,6 +31,7 @@ public class DiscussionServiceTests : IDisposable
     {
         this.dbContext.Database.EnsureDeleted();
         this.dbContext.Database.EnsureCreated();
+        dbContext.ChangeTracker.Clear();
     }
 
     [Test]
@@ -237,6 +238,7 @@ public class DiscussionServiceTests : IDisposable
         await dbContext.UsersBookClubs.AddRangeAsync(memberships);
         await dbContext.Discussions.AddRangeAsync(discussions);
         await dbContext.SaveChangesAsync();
+        dbContext.ChangeTracker.Clear();
     }
 
     protected virtual void Dispose(bool disposing)

@@ -30,6 +30,7 @@ public class GenreServiceTests : IDisposable
     {
         this.dbContext.Database.EnsureDeleted();
         this.dbContext.Database.EnsureCreated();
+        dbContext.ChangeTracker.Clear();
     }
 
     [Test]
@@ -121,6 +122,7 @@ public class GenreServiceTests : IDisposable
 
         await dbContext.Genres.AddRangeAsync(genres);
         await dbContext.SaveChangesAsync();
+        dbContext.ChangeTracker.Clear();
     }
 
     protected virtual void Dispose(bool disposing)

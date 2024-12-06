@@ -31,6 +31,7 @@ public class ReadingListServiceTests : IDisposable
     {
         dbContext.Database.EnsureDeleted();
         dbContext.Database.EnsureCreated();
+        dbContext.ChangeTracker.Clear();
     }
 
     [Test]
@@ -164,6 +165,7 @@ public class ReadingListServiceTests : IDisposable
         await dbContext.Books.AddRangeAsync(books);
         await dbContext.ReadingLists.AddAsync(readingList);
         await dbContext.SaveChangesAsync();
+        dbContext.ChangeTracker.Clear();
     }
 
     protected virtual void Dispose(bool disposing)

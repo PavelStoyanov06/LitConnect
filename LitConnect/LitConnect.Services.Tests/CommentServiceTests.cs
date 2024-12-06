@@ -31,6 +31,7 @@ public class CommentServiceTests : IDisposable
     {
         this.dbContext.Database.EnsureDeleted();
         this.dbContext.Database.EnsureCreated();
+        dbContext.ChangeTracker.Clear();
     }
 
     [Test]
@@ -138,6 +139,7 @@ public class CommentServiceTests : IDisposable
         await dbContext.Discussions.AddAsync(discussion);
         await dbContext.Comments.AddAsync(comment);
         await dbContext.SaveChangesAsync();
+        dbContext.ChangeTracker.Clear();
     }
 
     protected virtual void Dispose(bool disposing)
