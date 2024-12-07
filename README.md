@@ -49,37 +49,41 @@ Navigate to `LitConnect.Web/appsettings.json` and update the connection string:
 }
 ```
 
-### 3. Apply Database Migrations
+### 3. Database Setup
 
-Choose your preferred method:
+The application is configured to automatically create and initialize the database on startup through the `EnsureCreated()` method in `Program.cs`. You typically don't need to run migrations manually.
+
+However, if you encounter database issues or need to manually update the database structure, you can use migrations:
 
 **Using Package Manager Console in Visual Studio:**
 1. Open Package Manager Console (Tools > NuGet Package Manager > Package Manager Console)
-2. Set Default Project to "LitConnect.Data"
-3. Run:
+2. Set Default Project to "LitConnect.Data" (Important!)
+3. Only if needed, run:
 ```powershell
 Update-Database
 ```
 
 **Using .NET CLI:**
 ```bash
-cd LitConnect.Web
+cd LitConnect.Data    # Important! Migrations are in the Data project
 dotnet ef database update
 ```
 
-If you need to recreate migrations:
+If you need to reset the database:
 
-**Package Manager Console:**
+**Package Manager Console (in LitConnect.Data):**
 ```powershell
 Drop-Database
 Update-Database
 ```
 
-**CLI:**
+**CLI (from LitConnect.Data directory):**
 ```bash
 dotnet ef database drop
 dotnet ef database update
 ```
+
+Note: In most cases, you won't need to run these commands as the database is automatically created and seeded on application startup. Only use these commands if you're experiencing specific database issues or need to reset the database state.
 
 ### 4. Build and Run
 
