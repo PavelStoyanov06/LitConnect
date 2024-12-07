@@ -26,8 +26,8 @@ public class BookClubService : IBookClubService
                 Id = bc.Id,
                 Name = bc.Name,
                 Description = bc.Description,
-                MembersCount = bc.Users.Count,
-                IsUserMember = bc.Users.Any(u => u.UserId == userId)
+                MembersCount = bc.Users.Count(u => !u.IsDeleted),
+                IsUserMember = bc.Users.Any(u => u.UserId == userId && !u.IsDeleted)
             })
             .ToListAsync();
     }
@@ -43,10 +43,10 @@ public class BookClubService : IBookClubService
                 Description = bc.Description,
                 OwnerId = bc.OwnerId,
                 OwnerName = bc.Owner.FirstName + " " + bc.Owner.LastName,
-                MembersCount = bc.Users.Count,
-                IsUserMember = bc.Users.Any(u => u.UserId == userId),
+                MembersCount = bc.Users.Count(u => !u.IsDeleted),
+                IsUserMember = bc.Users.Any(u => u.UserId == userId && !u.IsDeleted),
+                IsUserAdmin = bc.Users.Any(u => u.UserId == userId && u.IsAdmin && !u.IsDeleted),
                 IsUserOwner = bc.OwnerId == userId,
-                IsUserAdmin = bc.Users.Any(u => u.UserId == userId && u.IsAdmin),
                 Meetings = bc.Meetings
                     .Where(m => !m.IsDeleted)
                     .Select(m => new MeetingInListViewModel
@@ -121,13 +121,16 @@ public class BookClubService : IBookClubService
     public async Task LeaveBookClubAsync(string bookClubId, string userId)
     {
         var membership = await _context.UsersBookClubs
-            .FirstOrDefaultAsync(ubc => ubc.BookClubId == bookClubId && ubc.UserId == userId);
+        .FirstOrDefaultAsync(ubc => ubc.BookClubId == bookClubId &&
+                                   ubc.UserId == userId &&
+                                   !ubc.IsDeleted);
 
         if (membership != null)
         {
-            _context.UsersBookClubs.Remove(membership);
+            membership.IsDeleted = true;
             await _context.SaveChangesAsync();
         }
+
     }
 
     public async Task AddBookAsync(string bookClubId, string bookId, bool isCurrentlyReading)
@@ -273,9 +276,9 @@ public class BookClubService : IBookClubService
     public async Task<BookClubMembersViewModel> GetMembersAsync(string bookClubId, string currentUserId)
     {
         var bookClub = await _context.BookClubs
-            .Include(bc => bc.Users)
-                .ThenInclude(u => u.User)
-            .FirstOrDefaultAsync(bc => bc.Id == bookClubId && !bc.IsDeleted);
+        .Include(bc => bc.Users.Where(u => !u.IsDeleted))
+            .ThenInclude(u => u.User)
+        .FirstOrDefaultAsync(bc => bc.Id == bookClubId && !bc.IsDeleted);
 
         if (bookClub == null)
         {
@@ -330,7 +333,9 @@ public class BookClubService : IBookClubService
     public async Task<bool> IsUserAdminAsync(string bookClubId, string userId)
     {
         var membership = await _context.UsersBookClubs
-            .FirstOrDefaultAsync(ubc => ubc.BookClubId == bookClubId && ubc.UserId == userId);
+            .FirstOrDefaultAsync(ubc => ubc.BookClubId == bookClubId &&
+                                       ubc.UserId == userId &&
+                                       !ubc.IsDeleted);
 
         return membership?.IsAdmin ?? false;
     }
