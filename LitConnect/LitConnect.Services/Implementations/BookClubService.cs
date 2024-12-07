@@ -368,7 +368,7 @@ public class BookClubService : IBookClubService
     public async Task<IEnumerable<BookClubAllViewModel>> GetUserClubsAsync(string userId)
     {
         return await _context.BookClubs
-            .Where(bc => !bc.IsDeleted && bc.Users.Any(u => u.UserId == userId))
+            .Where(bc => !bc.IsDeleted && bc.Users.Any(u => u.UserId == userId && !u.IsDeleted))
             .Select(bc => new BookClubAllViewModel
             {
                 Id = bc.Id,
