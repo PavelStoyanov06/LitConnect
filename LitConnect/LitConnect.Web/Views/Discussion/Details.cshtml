@@ -6,13 +6,11 @@
 }
 
 <div class="container mt-4">
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a asp-controller="BookClub" asp-action="Index">Book Clubs</a></li>
-            <li class="breadcrumb-item"><a asp-controller="BookClub" asp-action="Details" asp-route-id="@Model.BookClubId">@Model.BookClubName</a></li>
-            <li class="breadcrumb-item active">Discussion</li>
-        </ol>
-    </nav>
+    <div class="back-button-container">
+        <a asp-controller="BookClub" asp-action="Details" asp-route-id="@Model.BookClubId" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Club
+        </a>
+    </div>
 
     <div class="card mb-4">
         <div class="card-header">

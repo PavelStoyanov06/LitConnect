@@ -110,4 +110,15 @@ public class BookService : IBookService
     {
         return await _context.Books.AnyAsync(b => b.Id == id && !b.IsDeleted);
     }
+
+    public async Task DeleteAsync(string id)
+    {
+        var book = await _context.Books.FindAsync(id);
+
+        if (book != null)
+        {
+            book.IsDeleted = true;
+            await _context.SaveChangesAsync();
+        }
+    }
 }

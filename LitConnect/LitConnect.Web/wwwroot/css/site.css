@@ -82,3 +82,20 @@ body {
             gap: 10px;
         }
 }
+
+.back-button {
+    padding: 10px 0;
+}
+
+.back-button a {
+    color: #6c757d;
+    text-decoration: none;
+}
+
+.back-button a:hover {
+    color: #495057;
+}
+
+.back-button-container {
+    margin-bottom: 20px;
+}

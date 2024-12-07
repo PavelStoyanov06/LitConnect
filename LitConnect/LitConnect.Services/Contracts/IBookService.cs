@@ -18,4 +18,6 @@ public interface IBookService
     Task RemoveFromBookClubAsync(string bookId, string bookClubId);
 
     Task<bool> ExistsAsync(string id);
+
+    Task DeleteAsync(string id);
 }

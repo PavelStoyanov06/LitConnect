@@ -103,7 +103,29 @@ public class BookClubServiceTests : IDisposable
     }
 
     [Test]
-    public async Task LeaveBookClubAsync_ShouldRemoveUserFromClub()
+    public async Task JoinBookClubAsync_WithPreviouslyLeftClub_ShouldReactivateMembership()
+    {
+        await SeedDataAsync();
+        var bookClubId = "bookclub1";
+        var userId = "user2";
+
+        await bookClubService.JoinBookClubAsync(bookClubId, userId);
+        await bookClubService.LeaveBookClubAsync(bookClubId, userId);
+
+        await bookClubService.JoinBookClubAsync(bookClubId, userId);
+
+        var membership = await dbContext.UsersBookClubs
+            .FirstOrDefaultAsync(ubc => ubc.BookClubId == bookClubId && ubc.UserId == userId);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(membership, Is.Not.Null);
+            Assert.That(membership!.IsDeleted, Is.False);
+        });
+    }
+
+    [Test]
+    public async Task LeaveBookClubAsync_ShouldSoftDeleteMembership()
     {
         await SeedDataAsync();
         var bookClubId = "bookclub1";
@@ -113,7 +135,12 @@ public class BookClubServiceTests : IDisposable
 
         var membership = await dbContext.UsersBookClubs
             .FirstOrDefaultAsync(ubc => ubc.BookClubId == bookClubId && ubc.UserId == userId);
-        Assert.That(membership, Is.Null);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(membership, Is.Not.Null);
+            Assert.That(membership!.IsDeleted, Is.True);
+        });
     }
 
     [Test]

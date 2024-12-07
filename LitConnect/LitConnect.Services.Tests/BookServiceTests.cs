@@ -190,4 +190,16 @@ public class BookServiceTests : IDisposable
         Dispose(true);
         GC.SuppressFinalize(this);
     }
+
+    [Test]
+    public async Task DeleteAsync_ShouldSoftDeleteBook()
+    {
+        await SeedBooksAsync();
+        var bookId = "book1";
+
+        await bookService.DeleteAsync(bookId);
+
+        var deletedBook = await dbContext.Books.FindAsync(bookId);
+        Assert.That(deletedBook!.IsDeleted, Is.True);
+    }
 }

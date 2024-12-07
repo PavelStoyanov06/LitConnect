@@ -54,4 +54,13 @@ public class BookController : Controller
 
         return View(book);
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Administrator")]
+    public async Task<IActionResult> Delete(string id)
+    {
+        await _bookService.DeleteAsync(id);
+        return RedirectToAction(nameof(Index));
+    }
 }

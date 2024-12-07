@@ -101,10 +101,20 @@ public class BookClubService : IBookClubService
 
     public async Task JoinBookClubAsync(string bookClubId, string userId)
     {
-        var isAlreadyMember = await _context.UsersBookClubs
-            .AnyAsync(ubc => ubc.BookClubId == bookClubId && ubc.UserId == userId);
+        var existingMembership = await _context.UsersBookClubs
+            .FirstOrDefaultAsync(ubc => ubc.BookClubId == bookClubId &&
+                                       ubc.UserId == userId);
 
-        if (!isAlreadyMember)
+        if (existingMembership != null)
+        {
+            if (existingMembership.IsDeleted)
+            {
+                existingMembership.IsDeleted = false;
+                existingMembership.JoinedOn = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+            }
+        }
+        else
         {
             var membership = new UserBookClub
             {
