@@ -1,7 +1,10 @@
 ﻿using LitConnect.Data;
 using LitConnect.Data.Models;
-using LitConnect.Web.ViewModels.Comment;
+using LitConnect.Services.Contracts;
+using LitConnect.Services.Models;
 using Microsoft.EntityFrameworkCore;
+
+namespace LitConnect.Services.Implementations;
 
 public class CommentService : ICommentService
 {
@@ -12,13 +15,13 @@ public class CommentService : ICommentService
         _context = context;
     }
 
-    public async Task<string> CreateAsync(CommentCreateViewModel model, string authorId)
+    public async Task<string> CreateAsync(string content, string discussionId, string authorId)
     {
         var comment = new Comment
         {
-            Content = model.Content,
+            Content = content,
+            DiscussionId = discussionId,
             AuthorId = authorId,
-            DiscussionId = model.DiscussionId,
             CreatedOn = DateTime.UtcNow
         };
 
@@ -33,7 +36,7 @@ public class CommentService : ICommentService
         var comment = await _context.Comments.FindAsync(id);
         if (comment != null)
         {
-            _context.Comments.Remove(comment);
+            comment.IsDeleted = true;
             await _context.SaveChangesAsync();
         }
     }
@@ -41,6 +44,8 @@ public class CommentService : ICommentService
     public async Task<bool> IsUserAuthorAsync(string commentId, string userId)
     {
         return await _context.Comments
-            .AnyAsync(c => c.Id == commentId && c.AuthorId == userId);
+            .AnyAsync(c => c.Id == commentId &&
+                          c.AuthorId == userId &&
+                          !c.IsDeleted);
     }
 }

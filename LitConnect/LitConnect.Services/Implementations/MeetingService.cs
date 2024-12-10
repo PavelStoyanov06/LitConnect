@@ -3,7 +3,7 @@
 using LitConnect.Data;
 using LitConnect.Data.Models;
 using LitConnect.Services.Contracts;
-using LitConnect.Web.ViewModels.Meeting;
+using LitConnect.Services.Models;
 using Microsoft.EntityFrameworkCore;
 
 public class MeetingService : IMeetingService
@@ -15,26 +15,29 @@ public class MeetingService : IMeetingService
         _context = context;
     }
 
-    public async Task<IEnumerable<MeetingInListViewModel>> GetBookClubMeetingsAsync(string bookClubId)
+    public async Task<IEnumerable<MeetingDto>> GetBookClubMeetingsAsync(string bookClubId)
     {
         return await _context.Meetings
             .Where(m => m.BookClubId == bookClubId && !m.IsDeleted)
             .OrderByDescending(m => m.ScheduledDate)
-            .Select(m => new MeetingInListViewModel
+            .Select(m => new MeetingDto
             {
                 Id = m.Id,
                 Title = m.Title,
+                Description = m.Description,
                 ScheduledDate = m.ScheduledDate,
+                BookClubId = m.BookClubId,
+                BookClubName = m.BookClub.Name,
                 BookTitle = m.Book != null ? m.Book.Title : null
             })
             .ToListAsync();
     }
 
-    public async Task<MeetingDetailsViewModel?> GetDetailsAsync(string id)
+    public async Task<MeetingDto?> GetByIdAsync(string id)
     {
         return await _context.Meetings
             .Where(m => m.Id == id && !m.IsDeleted)
-            .Select(m => new MeetingDetailsViewModel
+            .Select(m => new MeetingDto
             {
                 Id = m.Id,
                 Title = m.Title,
@@ -47,15 +50,15 @@ public class MeetingService : IMeetingService
             .FirstOrDefaultAsync();
     }
 
-    public async Task<string> CreateAsync(MeetingCreateViewModel model)
+    public async Task<string> CreateAsync(string title, string? description, DateTime scheduledDate, string bookClubId, string? bookId)
     {
         var meeting = new Meeting
         {
-            Title = model.Title,
-            Description = model.Description,
-            ScheduledDate = model.ScheduledDate,
-            BookClubId = model.BookClubId,
-            BookId = model.BookId
+            Title = title,
+            Description = description,
+            ScheduledDate = scheduledDate,
+            BookClubId = bookClubId,
+            BookId = bookId
         };
 
         await _context.Meetings.AddAsync(meeting);

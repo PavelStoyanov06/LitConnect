@@ -1,10 +1,10 @@
 ﻿namespace LitConnect.Services.Contracts;
 
-using LitConnect.Web.ViewModels.ReadingList;
+using LitConnect.Services.Models;
 
 public interface IReadingListService
 {
-    Task<ReadingListViewModel> GetByUserIdAsync(string userId);
+    Task<ReadingListDto> GetByUserIdAsync(string userId);
 
     Task AddBookAsync(string userId, string bookId);
 

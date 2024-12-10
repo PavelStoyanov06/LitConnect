@@ -5,6 +5,8 @@ using LitConnect.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using LitConnect.Services.Implementations;
+using LitConnect.Web.Infrastructure.Mapping.Contracts;
+using LitConnect.Web.Infrastructure.Mapping.Implementations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,14 +40,21 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
-//Custom services
-builder.Services.AddScoped<IBookClubService, BookClubService>();
+// Register services
 builder.Services.AddScoped<IBookService, BookService>();
-builder.Services.AddScoped<IGenreService, GenreService>();
+builder.Services.AddScoped<IBookClubService, BookClubService>();
 builder.Services.AddScoped<IDiscussionService, DiscussionService>();
-builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IMeetingService, MeetingService>();
 builder.Services.AddScoped<IReadingListService, ReadingListService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
+
+// Register mappers
+builder.Services.AddScoped<IBookMapper, BookMapper>();
+builder.Services.AddScoped<IBookClubMapper, BookClubMapper>();
+builder.Services.AddScoped<IDiscussionMapper, DiscussionMapper>();
+builder.Services.AddScoped<IMeetingMapper, MeetingMapper>();
+builder.Services.AddScoped<IReadingListMapper, ReadingListMapper>();
+builder.Services.AddScoped<ICommentMapper, CommentMapper>();
 
 var app = builder.Build();
 

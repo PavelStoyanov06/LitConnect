@@ -1,14 +1,14 @@
-﻿namespace LitConnect.Services.Contracts;
+﻿using LitConnect.Services.Models;
 
-using LitConnect.Web.ViewModels.Meeting;
+namespace LitConnect.Services.Contracts;
 
 public interface IMeetingService
 {
-    Task<IEnumerable<MeetingInListViewModel>> GetBookClubMeetingsAsync(string bookClubId);
+    Task<IEnumerable<MeetingDto>> GetBookClubMeetingsAsync(string bookClubId);
 
-    Task<MeetingDetailsViewModel?> GetDetailsAsync(string id);
+    Task<MeetingDto?> GetByIdAsync(string id);
 
-    Task<string> CreateAsync(MeetingCreateViewModel model);
+    Task<string> CreateAsync(string title, string? description, DateTime scheduledDate, string bookClubId, string? bookId);
 
     Task DeleteAsync(string id);
 

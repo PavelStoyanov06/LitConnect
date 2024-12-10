@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LitConnect.Services.Models\LitConnect.Services.Models.csproj" />
+    <ProjectReference Include="..\LitConnect.Web.ViewModels\LitConnect.Web.ViewModels.csproj" />
+  </ItemGroup>
+
+</Project>

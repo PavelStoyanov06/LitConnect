@@ -17,7 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\LitConnect.Data\LitConnect.Data.csproj" />
     <ProjectReference Include="..\LitConnect.Data.Models\LitConnect.Data.Models.csproj" />
-    <ProjectReference Include="..\LitConnect.Web.ViewModels\LitConnect.Web.ViewModels.csproj" />
+    <ProjectReference Include="..\LitConnect.Services.Models\LitConnect.Services.Models.csproj" />
   </ItemGroup>
 
 </Project>

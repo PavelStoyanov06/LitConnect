@@ -2,7 +2,7 @@
 
 using LitConnect.Data;
 using LitConnect.Services.Contracts;
-using LitConnect.Web.ViewModels.Genre;
+using LitConnect.Services.Models;
 using Microsoft.EntityFrameworkCore;
 
 public class GenreService : IGenreService
@@ -14,29 +14,28 @@ public class GenreService : IGenreService
         _context = context;
     }
 
-    public async Task<IEnumerable<GenreViewModel>> GetAllAsync()
+    public async Task<IEnumerable<GenreDto>> GetAllAsync()
     {
         return await _context.Genres
             .Where(g => !g.IsDeleted)
-            .Select(g => new GenreViewModel
+            .Select(g => new GenreDto
             {
                 Id = g.Id,
                 Name = g.Name,
-                BooksCount = g.Books.Count
+                BooksCount = g.Books.Count(b => !b.IsDeleted)
             })
-            .OrderBy(g => g.Name)
             .ToListAsync();
     }
 
-    public async Task<GenreViewModel?> GetByIdAsync(string id)
+    public async Task<GenreDto?> GetByIdAsync(string id)
     {
         return await _context.Genres
             .Where(g => g.Id == id && !g.IsDeleted)
-            .Select(g => new GenreViewModel
+            .Select(g => new GenreDto
             {
                 Id = g.Id,
                 Name = g.Name,
-                BooksCount = g.Books.Count
+                BooksCount = g.Books.Count(b => !b.IsDeleted)
             })
             .FirstOrDefaultAsync();
     }
@@ -45,5 +44,11 @@ public class GenreService : IGenreService
     {
         return await _context.Genres
             .AnyAsync(g => g.Id == id && !g.IsDeleted);
+    }
+
+    public async Task<int> GetBooksCountAsync(string id)
+    {
+        return await _context.BooksGenres
+            .CountAsync(bg => bg.GenreId == id && !bg.IsDeleted);
     }
 }

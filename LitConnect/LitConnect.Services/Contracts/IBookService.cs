@@ -1,23 +1,18 @@
 ﻿namespace LitConnect.Services.Contracts;
 
-using LitConnect.Web.ViewModels.Book;
-using LitConnect.Web.ViewModels.Genre;
+using LitConnect.Services.Models;
 
 public interface IBookService
 {
-    Task<IEnumerable<BookAllViewModel>> GetAllAsync();
+    Task<IEnumerable<BookDto>> GetAllAsync();
 
-    Task<BookDetailsViewModel?> GetDetailsAsync(string id);
+    Task<BookDto?> GetByIdAsync(string id);
 
-    Task<string> CreateAsync(BookCreateViewModel model);
-
-    Task<IEnumerable<GenreViewModel>> GetAllGenresAsync();
-
-    Task AddToBookClubAsync(string bookId, string bookClubId);
-
-    Task RemoveFromBookClubAsync(string bookId, string bookClubId);
-
-    Task<bool> ExistsAsync(string id);
+    Task<string> CreateAsync(string title, string author, string? description, IEnumerable<string> genreIds);
 
     Task DeleteAsync(string id);
+
+    Task<IEnumerable<GenreDto>> GetAllGenresAsync();
+
+    Task<bool> ExistsAsync(string id);
 }

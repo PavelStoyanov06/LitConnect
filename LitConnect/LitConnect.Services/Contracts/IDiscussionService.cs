@@ -1,14 +1,14 @@
 ﻿namespace LitConnect.Services.Contracts;
 
-using LitConnect.Web.ViewModels.Discussion;
+using LitConnect.Services.Models;
 
 public interface IDiscussionService
 {
-    Task<IEnumerable<DiscussionInListViewModel>> GetBookClubDiscussionsAsync(string bookClubId);
+    Task<IEnumerable<DiscussionDto>> GetBookClubDiscussionsAsync(string bookClubId);
 
-    Task<DiscussionDetailsViewModel?> GetDetailsAsync(string id, string userId);
+    Task<DiscussionDto?> GetByIdAsync(string id, string userId);
 
-    Task<string> CreateAsync(DiscussionCreateViewModel model, string authorId);
+    Task<string> CreateAsync(string title, string content, string bookClubId, string? bookId, string authorId);
 
     Task DeleteAsync(string id);
 

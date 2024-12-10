@@ -3,19 +3,21 @@
 using LitConnect.Data;
 using LitConnect.Data.Models;
 using LitConnect.Services.Contracts;
-using LitConnect.Web.ViewModels.ReadingList;
+using LitConnect.Services.Models;
 using Microsoft.EntityFrameworkCore;
 
 public class ReadingListService : IReadingListService
 {
     private readonly LitConnectDbContext _context;
+    private readonly Dictionary<string, ReadingStatus> _bookStatuses;
 
     public ReadingListService(LitConnectDbContext context)
     {
         _context = context;
+        _bookStatuses = new Dictionary<string, ReadingStatus>();
     }
 
-    public async Task<ReadingListViewModel> GetByUserIdAsync(string userId)
+    public async Task<ReadingListDto> GetByUserIdAsync(string userId)
     {
         var readingList = await _context.ReadingLists
             .Include(rl => rl.User)
@@ -23,12 +25,7 @@ public class ReadingListService : IReadingListService
                 .ThenInclude(b => b.Genres)
                     .ThenInclude(bg => bg.Genre)
             .Where(rl => rl.UserId == userId && !rl.IsDeleted)
-            .FirstOrDefaultAsync() ?? new ReadingList
-            {
-                UserId = userId,
-                Books = new HashSet<Book>(),
-                User = await _context.Users.FirstAsync(u => u.Id == userId)
-            };
+            .FirstOrDefaultAsync();
 
         if (readingList == null)
         {
@@ -40,20 +37,22 @@ public class ReadingListService : IReadingListService
             await _context.SaveChangesAsync();
         }
 
-        return new ReadingListViewModel
+        return new ReadingListDto
         {
             Id = readingList.Id,
             UserId = readingList.UserId,
             UserName = $"{readingList.User.FirstName} {readingList.User.LastName}",
-            BooksCount = readingList.Books.Count,
             Books = readingList.Books
-                .Select(b => new ReadingListBookViewModel
+                .Where(b => !b.IsDeleted)
+                .Select(b => new ReadingListBookDto
                 {
                     Id = b.Id,
                     Title = b.Title,
                     Author = b.Author,
-                    Status = ReadingStatus.WantToRead, // You'll need to add status tracking
-                    Genres = b.Genres.Select(bg => bg.Genre.Name)
+                    Status = GetBookStatus(readingList.Id, b.Id),
+                    Genres = b.Genres
+                        .Where(bg => !bg.IsDeleted)
+                        .Select(bg => bg.Genre.Name)
                 })
                 .ToList()
         };
@@ -67,6 +66,7 @@ public class ReadingListService : IReadingListService
         if (book != null && !readingList.Books.Any(b => b.Id == bookId))
         {
             readingList.Books.Add(book);
+            SetBookStatus(readingList.Id, bookId, ReadingStatus.WantToRead);
             await _context.SaveChangesAsync();
         }
     }
@@ -79,14 +79,18 @@ public class ReadingListService : IReadingListService
         if (book != null)
         {
             readingList.Books.Remove(book);
+            RemoveBookStatus(readingList.Id, bookId);
             await _context.SaveChangesAsync();
         }
     }
 
     public async Task UpdateBookStatusAsync(string userId, string bookId, ReadingStatus status)
     {
-        // You'll need to add status tracking to implement this
-        throw new NotImplementedException();
+        var readingList = await GetOrCreateReadingListAsync(userId);
+        if (readingList.Books.Any(b => b.Id == bookId))
+        {
+            SetBookStatus(readingList.Id, bookId, status);
+        }
     }
 
     public async Task<bool> HasBookAsync(string userId, string bookId)
@@ -110,10 +114,28 @@ public class ReadingListService : IReadingListService
             {
                 UserId = userId
             };
-            await _context.ReadingLists.AddAsync(readingList);
+            await _context.AddAsync(readingList);
             await _context.SaveChangesAsync();
         }
 
         return readingList;
+    }
+
+    private ReadingStatus GetBookStatus(string readingListId, string bookId)
+    {
+        var key = $"{readingListId}_{bookId}";
+        return _bookStatuses.GetValueOrDefault(key, ReadingStatus.WantToRead);
+    }
+
+    private void SetBookStatus(string readingListId, string bookId, ReadingStatus status)
+    {
+        var key = $"{readingListId}_{bookId}";
+        _bookStatuses[key] = status;
+    }
+
+    private void RemoveBookStatus(string readingListId, string bookId)
+    {
+        var key = $"{readingListId}_{bookId}";
+        _bookStatuses.Remove(key);
     }
 }

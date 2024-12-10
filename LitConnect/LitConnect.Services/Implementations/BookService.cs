@@ -1,11 +1,10 @@
-﻿namespace LitConnect.Services.Implementations;
-
-using LitConnect.Data;
+﻿using LitConnect.Data;
 using LitConnect.Data.Models;
 using LitConnect.Services.Contracts;
-using LitConnect.Web.ViewModels.Book;
-using LitConnect.Web.ViewModels.Genre;
+using LitConnect.Services.Models;
 using Microsoft.EntityFrameworkCore;
+
+namespace LitConnect.Services.Implementations;
 
 public class BookService : IBookService
 {
@@ -16,46 +15,64 @@ public class BookService : IBookService
         _context = context;
     }
 
-    public async Task<IEnumerable<BookAllViewModel>> GetAllAsync()
+    public async Task<IEnumerable<BookDto>> GetAllAsync()
     {
         return await _context.Books
             .Where(b => !b.IsDeleted)
-            .Select(b => new BookAllViewModel
-            {
-                Id = b.Id,
-                Title = b.Title,
-                Author = b.Author,
-                Genres = b.Genres.Select(g => g.Genre.Name).ToList()
-            })
-            .ToListAsync();
-    }
-
-    public async Task<BookDetailsViewModel?> GetDetailsAsync(string id)
-    {
-        return await _context.Books
-            .Where(b => b.Id == id && !b.IsDeleted)
-            .Select(b => new BookDetailsViewModel
+            .Select(b => new BookDto
             {
                 Id = b.Id,
                 Title = b.Title,
                 Author = b.Author,
                 Description = b.Description,
-                Genres = b.Genres.Select(g => g.Genre.Name).ToList(),
-                BookClubsCount = b.BookClubs.Count
+                BookClubsCount = b.BookClubs.Count,
+                Genres = b.Genres
+                    .Where(bg => !bg.IsDeleted)
+                    .Select(bg => new GenreDto
+                    {
+                        Id = bg.Genre.Id,
+                        Name = bg.Genre.Name,
+                        BooksCount = bg.Genre.Books.Count(b => !b.IsDeleted)
+                    })
+                    .ToList()
+            })
+            .ToListAsync();
+    }
+
+    public async Task<BookDto?> GetByIdAsync(string id)
+    {
+        return await _context.Books
+            .Where(b => b.Id == id && !b.IsDeleted)
+            .Select(b => new BookDto
+            {
+                Id = b.Id,
+                Title = b.Title,
+                Author = b.Author,
+                Description = b.Description,
+                BookClubsCount = b.BookClubs.Count,
+                Genres = b.Genres
+                    .Where(bg => !bg.IsDeleted)
+                    .Select(bg => new GenreDto
+                    {
+                        Id = bg.Genre.Id,
+                        Name = bg.Genre.Name,
+                        BooksCount = bg.Genre.Books.Count(b => !b.IsDeleted)
+                    })
+                    .ToList()
             })
             .FirstOrDefaultAsync();
     }
 
-    public async Task<string> CreateAsync(BookCreateViewModel model)
+    public async Task<string> CreateAsync(string title, string author, string? description, IEnumerable<string> genreIds)
     {
         var book = new Book
         {
-            Title = model.Title,
-            Author = model.Author,
-            Description = model.Description
+            Title = title,
+            Author = author,
+            Description = description
         };
 
-        foreach (var genreId in model.GenreIds)
+        foreach (var genreId in genreIds)
         {
             book.Genres.Add(new BookGenre
             {
@@ -69,56 +86,32 @@ public class BookService : IBookService
         return book.Id;
     }
 
-    public async Task<IEnumerable<GenreViewModel>> GetAllGenresAsync()
+    public async Task DeleteAsync(string id)
     {
-        return await _context.Genres
-            .Where(g => !g.IsDeleted)
-            .Select(g => new GenreViewModel
-            {
-                Id = g.Id,
-                Name = g.Name,
-                BooksCount = g.Books.Count
-            })
-            .ToListAsync();
-    }
-
-    public async Task AddToBookClubAsync(string bookId, string bookClubId)
-    {
-        var book = await _context.Books.FindAsync(bookId);
-        var bookClub = await _context.BookClubs.FindAsync(bookClubId);
-
-        if (book != null && bookClub != null)
+        var book = await _context.Books.FindAsync(id);
+        if (book != null)
         {
-            bookClub.Books.Add(book);
-            await _context.SaveChangesAsync();
-        }
-    }
-
-    public async Task RemoveFromBookClubAsync(string bookId, string bookClubId)
-    {
-        var book = await _context.Books.FindAsync(bookId);
-        var bookClub = await _context.BookClubs.FindAsync(bookClubId);
-
-        if (book != null && bookClub != null)
-        {
-            bookClub.Books.Remove(book);
+            book.IsDeleted = true;
             await _context.SaveChangesAsync();
         }
     }
 
     public async Task<bool> ExistsAsync(string id)
     {
-        return await _context.Books.AnyAsync(b => b.Id == id && !b.IsDeleted);
+        return await _context.Books
+            .AnyAsync(b => b.Id == id && !b.IsDeleted);
     }
 
-    public async Task DeleteAsync(string id)
+    public async Task<IEnumerable<GenreDto>> GetAllGenresAsync()
     {
-        var book = await _context.Books.FindAsync(id);
-
-        if (book != null)
-        {
-            book.IsDeleted = true;
-            await _context.SaveChangesAsync();
-        }
+        return await _context.Genres
+            .Where(g => !g.IsDeleted)
+            .Select(g => new GenreDto
+            {
+                Id = g.Id,
+                Name = g.Name,
+                BooksCount = g.Books.Count(b => !b.IsDeleted)
+            })
+            .ToListAsync();
     }
 }

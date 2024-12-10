@@ -1,10 +1,14 @@
 ﻿namespace LitConnect.Services.Contracts;
 
-using LitConnect.Web.ViewModels.Genre;
+using LitConnect.Services.Models;
 
 public interface IGenreService
 {
-    Task<IEnumerable<GenreViewModel>> GetAllAsync();
-    Task<GenreViewModel?> GetByIdAsync(string id);
+    Task<IEnumerable<GenreDto>> GetAllAsync();
+
+    Task<GenreDto?> GetByIdAsync(string id);
+
     Task<bool> ExistsAsync(string id);
+
+    Task<int> GetBooksCountAsync(string id);
 }
