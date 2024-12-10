@@ -27,14 +27,14 @@ public class DiscussionController : Controller
     public async Task<IActionResult> Details(string id)
     {
         var userId = _userManager.GetUserId(User);
-        var discussionDto = await _discussionService.GetDetailsAsync(id, userId);
+        var discussion = await _discussionService.GetDetailsAsync(id, userId);
 
-        if (discussionDto == null)
+        if (discussion == null)
         {
             return NotFound();
         }
 
-        var viewModel = _discussionMapper.MapToDetailsViewModel(discussionDto);
+        var viewModel = _discussionMapper.MapToDetailsViewModel(discussion);
         return View(viewModel);
     }
 }

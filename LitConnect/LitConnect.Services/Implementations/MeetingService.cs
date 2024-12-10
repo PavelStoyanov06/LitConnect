@@ -82,4 +82,21 @@ public class MeetingService : IMeetingService
         return await _context.Meetings
             .AnyAsync(m => m.Id == id && !m.IsDeleted);
     }
+
+    public async Task<MeetingDto?> GetDetailsAsync(string id)
+    {
+        return await _context.Meetings
+            .Where(m => m.Id == id && !m.IsDeleted)
+            .Select(m => new MeetingDto
+            {
+                Id = m.Id,
+                Title = m.Title,
+                Description = m.Description,
+                ScheduledDate = m.ScheduledDate,
+                BookClubId = m.BookClubId,
+                BookClubName = m.BookClub.Name,
+                BookTitle = m.Book != null ? m.Book.Title : null
+            })
+            .FirstOrDefaultAsync();
+    }
 }

@@ -13,4 +13,6 @@ public interface IMeetingService
     Task DeleteAsync(string id);
 
     Task<bool> ExistsAsync(string id);
+
+    Task<MeetingDto?> GetDetailsAsync(string id);
 }

@@ -31,7 +31,7 @@ public class DiscussionService : IDiscussionService
             .ToListAsync();
     }
 
-    public async Task<DiscussionDto?> GetByIdAsync(string id, string userId)
+    public async Task<DiscussionDto?> GetDetailsAsync(string id, string userId)
     {
         return await _context.Discussions
             .Where(d => d.Id == id && !d.IsDeleted)

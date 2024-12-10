@@ -402,4 +402,12 @@ public class BookClubService : IBookClubService
             })
             .ToListAsync();
     }
+
+    public async Task<bool> IsUserMemberAsync(string bookClubId, string userId)
+    {
+        return await _context.UsersBookClubs
+            .AnyAsync(ubc => ubc.BookClubId == bookClubId &&
+                            ubc.UserId == userId &&
+                            !ubc.IsDeleted);
+    }
 }

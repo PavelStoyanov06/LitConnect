@@ -35,4 +35,6 @@ public interface IBookClubService
     Task<IEnumerable<BookClubDto>> GetUserClubsAsync(string userId);
 
     Task<BookClubDto> GetDetailsAsync(string id, string userId);
+
+    Task<bool> IsUserMemberAsync(string bookClubId, string userId);
 }

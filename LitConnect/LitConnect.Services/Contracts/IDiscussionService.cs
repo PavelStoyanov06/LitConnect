@@ -6,7 +6,7 @@ public interface IDiscussionService
 {
     Task<IEnumerable<DiscussionDto>> GetBookClubDiscussionsAsync(string bookClubId);
 
-    Task<DiscussionDto?> GetByIdAsync(string id, string userId);
+    Task<DiscussionDto?> GetDetailsAsync(string id, string userId);
 
     Task<string> CreateAsync(string title, string content, string bookClubId, string? bookId, string authorId);
 

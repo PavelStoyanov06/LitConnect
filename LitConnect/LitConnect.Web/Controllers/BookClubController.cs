@@ -33,9 +33,8 @@ public class BookClubController : Controller
     public async Task<IActionResult> Index()
     {
         var userId = _userManager.GetUserId(User);
-        var bookClubDtos = await _bookClubService.GetAllAsync();
-        var viewModels = _bookClubMapper.MapToAllViewModels(bookClubDtos);
-
+        var bookClubs = await _bookClubService.GetAllAsync();
+        var viewModels = _bookClubMapper.MapToAllViewModels(bookClubs);
         return View(viewModels);
     }
 
@@ -51,5 +50,30 @@ public class BookClubController : Controller
 
         var viewModel = _bookClubMapper.MapToDetailsViewModel(bookClubDto);
         return View(viewModel);
+    }
+
+    [Authorize]
+    public async Task<IActionResult> MyClubs()
+    {
+        var userId = _userManager.GetUserId(User);
+        var bookClubs = await _bookClubService.GetUserClubsAsync(userId);
+        var viewModels = _bookClubMapper.MapToAllViewModels(bookClubs);
+        return View(viewModels);
+    }
+
+    [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> Join(string id)
+    {
+        var userId = _userManager.GetUserId(User);
+        var isAlreadyMember = await _bookClubService.IsUserMemberAsync(id, userId);
+
+        if (isAlreadyMember)
+        {
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        await _bookClubService.JoinBookClubAsync(id, userId);
+        return RedirectToAction(nameof(Details), new { id });
     }
 }

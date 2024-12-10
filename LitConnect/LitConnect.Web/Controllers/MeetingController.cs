@@ -22,14 +22,14 @@ public class MeetingController : Controller
 
     public async Task<IActionResult> Details(string id)
     {
-        var meetingDto = await _meetingService.GetDetailsAsync(id);
+        var meeting = await _meetingService.GetByIdAsync(id);
 
-        if (meetingDto == null)
+        if (meeting == null)
         {
             return NotFound();
         }
 
-        var viewModel = _meetingMapper.MapToDetailsViewModel(meetingDto);
+        var viewModel = _meetingMapper.MapToDetailsViewModel(meeting);
         return View(viewModel);
     }
 }
