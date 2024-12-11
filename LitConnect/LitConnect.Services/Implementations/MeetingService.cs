@@ -56,7 +56,7 @@ public class MeetingService : IMeetingService
         {
             Title = title,
             Description = description,
-            ScheduledDate = scheduledDate,
+            ScheduledDate = scheduledDate.Date.AddHours(12),
             BookClubId = bookClubId,
             BookId = bookId
         };

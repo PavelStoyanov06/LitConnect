@@ -35,8 +35,12 @@
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="ScheduledDate" class="form-label"></label>
-                            <input asp-for="ScheduledDate" class="form-control" type="datetime-local" />
+                            <label asp-for="ScheduledDate" class="form-label">Date and Time</label>
+                            <div class="row">
+                                <div class="col">
+                                    <input asp-for="ScheduledDate" class="form-control" type="datetime-local" step="3600" />
+                                </div>
+                            </div>
                             <span asp-validation-for="ScheduledDate" class="text-danger"></span>
                         </div>
 

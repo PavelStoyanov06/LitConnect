@@ -14,7 +14,8 @@ public class MeetingCreateViewModel
     public string? Description { get; set; }
 
     [Required]
-    [Display(Name = "Meeting Date and Time")]
+    [Display(Name = "Meeting Date")]
+    [DataType(DataType.Date)]
     public DateTime ScheduledDate { get; set; }
 
     [Required]

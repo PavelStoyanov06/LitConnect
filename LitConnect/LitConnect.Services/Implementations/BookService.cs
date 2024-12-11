@@ -88,11 +88,31 @@ public class BookService : IBookService
 
     public async Task DeleteAsync(string id)
     {
-        var book = await _context.Books.FindAsync(id);
-        if (book != null)
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try
         {
-            book.IsDeleted = true;
-            await _context.SaveChangesAsync();
+            var bookClubsWithThisBook = await _context.BookClubs
+                .Where(bc => bc.CurrentBookId == id)
+                .ToListAsync();
+
+            foreach (var bookClub in bookClubsWithThisBook)
+            {
+                bookClub.CurrentBookId = null;
+            }
+
+            var book = await _context.Books.FindAsync(id);
+            if (book != null)
+            {
+                book.IsDeleted = true;
+                await _context.SaveChangesAsync();
+            }
+
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
         }
     }
 
