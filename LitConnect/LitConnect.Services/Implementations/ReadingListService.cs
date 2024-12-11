@@ -24,8 +24,7 @@ public class ReadingListService : IReadingListService
             .Include(rl => rl.Books)
                 .ThenInclude(b => b.Genres)
                     .ThenInclude(bg => bg.Genre)
-            .Where(rl => rl.UserId == userId && !rl.IsDeleted)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(rl => rl.UserId == userId && !rl.IsDeleted);
 
         if (readingList == null)
         {
@@ -60,7 +59,19 @@ public class ReadingListService : IReadingListService
 
     public async Task AddBookAsync(string userId, string bookId)
     {
-        var readingList = await GetOrCreateReadingListAsync(userId);
+        var readingList = await _context.ReadingLists
+            .Include(rl => rl.Books)
+            .FirstOrDefaultAsync(rl => rl.UserId == userId && !rl.IsDeleted);
+
+        if (readingList == null)
+        {
+            readingList = new ReadingList
+            {
+                UserId = userId
+            };
+            await _context.ReadingLists.AddAsync(readingList);
+        }
+
         var book = await _context.Books.FindAsync(bookId);
 
         if (book != null && !readingList.Books.Any(b => b.Id == bookId))
@@ -73,23 +84,32 @@ public class ReadingListService : IReadingListService
 
     public async Task RemoveBookAsync(string userId, string bookId)
     {
-        var readingList = await GetOrCreateReadingListAsync(userId);
-        var book = readingList.Books.FirstOrDefault(b => b.Id == bookId);
+        var readingList = await _context.ReadingLists
+            .Include(rl => rl.Books)
+            .FirstOrDefaultAsync(rl => rl.UserId == userId && !rl.IsDeleted);
 
-        if (book != null)
+        if (readingList != null)
         {
-            readingList.Books.Remove(book);
-            RemoveBookStatus(readingList.Id, bookId);
-            await _context.SaveChangesAsync();
+            var book = readingList.Books.FirstOrDefault(b => b.Id == bookId);
+            if (book != null)
+            {
+                readingList.Books.Remove(book);
+                RemoveBookStatus(readingList.Id, bookId);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 
     public async Task UpdateBookStatusAsync(string userId, string bookId, ReadingStatus status)
     {
-        var readingList = await GetOrCreateReadingListAsync(userId);
-        if (readingList.Books.Any(b => b.Id == bookId))
+        var readingList = await _context.ReadingLists
+            .Include(rl => rl.Books)
+            .FirstOrDefaultAsync(rl => rl.UserId == userId && !rl.IsDeleted);
+
+        if (readingList != null && readingList.Books.Any(b => b.Id == bookId))
         {
             SetBookStatus(readingList.Id, bookId, status);
+            await _context.SaveChangesAsync();
         }
     }
 
@@ -100,25 +120,6 @@ public class ReadingListService : IReadingListService
             .FirstOrDefaultAsync(rl => rl.UserId == userId && !rl.IsDeleted);
 
         return readingList?.Books.Any(b => b.Id == bookId) ?? false;
-    }
-
-    private async Task<ReadingList> GetOrCreateReadingListAsync(string userId)
-    {
-        var readingList = await _context.ReadingLists
-            .Include(rl => rl.Books)
-            .FirstOrDefaultAsync(rl => rl.UserId == userId && !rl.IsDeleted);
-
-        if (readingList == null)
-        {
-            readingList = new ReadingList
-            {
-                UserId = userId
-            };
-            await _context.AddAsync(readingList);
-            await _context.SaveChangesAsync();
-        }
-
-        return readingList;
     }
 
     private ReadingStatus GetBookStatus(string readingListId, string bookId)

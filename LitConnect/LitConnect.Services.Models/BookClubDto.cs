@@ -20,13 +20,13 @@ public class BookClubDto
 
     public bool IsUserAdmin { get; set; }
 
+    public ICollection<MemberDto> Members { get; set; } = new List<MemberDto>();
+
     public BookDto? CurrentBook { get; set; }
 
-    public ICollection<MemberDto> Members { get; set; } = new List<MemberDto>();
+    public ICollection<BookDto> Books { get; set; } = new List<BookDto>();
 
     public ICollection<DiscussionDto> Discussions { get; set; } = new List<DiscussionDto>();
 
     public ICollection<MeetingDto> Meetings { get; set; } = new List<MeetingDto>();
-
-    public ICollection<BookDto> Books { get; set; } = new List<BookDto>();
 }

@@ -2,7 +2,6 @@
 
 using LitConnect.Data.Models;
 using LitConnect.Services.Contracts;
-using LitConnect.Web.Infrastructure.Mapping.Contracts;
 using LitConnect.Web.ViewModels.Comment;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -12,16 +11,13 @@ using Microsoft.AspNetCore.Mvc;
 public class CommentController : Controller
 {
     private readonly ICommentService _commentService;
-    private readonly ICommentMapper _commentMapper;
     private readonly UserManager<ApplicationUser> _userManager;
 
     public CommentController(
         ICommentService commentService,
-        ICommentMapper commentMapper,
         UserManager<ApplicationUser> userManager)
     {
         _commentService = commentService;
-        _commentMapper = commentMapper;
         _userManager = userManager;
     }
 
@@ -46,11 +42,12 @@ public class CommentController : Controller
     {
         var userId = _userManager.GetUserId(User);
 
-        if (await _commentService.IsUserAuthorAsync(id, userId))
+        if (!await _commentService.IsUserAuthorAsync(id, userId))
         {
-            await _commentService.DeleteAsync(id);
+            return Forbid();
         }
 
+        await _commentService.DeleteAsync(id);
         return RedirectToAction("Details", "Discussion", new { id = discussionId });
     }
 }

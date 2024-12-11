@@ -3,6 +3,7 @@
 using LitConnect.Data.Models;
 using LitConnect.Services.Contracts;
 using LitConnect.Web.Infrastructure.Mapping.Contracts;
+using LitConnect.Web.ViewModels.ReadingList;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -27,9 +28,40 @@ public class ReadingListController : Controller
     public async Task<IActionResult> Index()
     {
         var userId = _userManager.GetUserId(User);
-        var readingListDto = await _readingListService.GetByUserIdAsync(userId);
-        var viewModel = _readingListMapper.MapToViewModel(readingListDto);
-
+        var readingList = await _readingListService.GetByUserIdAsync(userId);
+        var viewModel = _readingListMapper.MapToViewModel(readingList);
         return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddBook(string bookId)
+    {
+        var userId = _userManager.GetUserId(User);
+
+        if (!await _readingListService.HasBookAsync(userId, bookId))
+        {
+            await _readingListService.AddBookAsync(userId, bookId);
+        }
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RemoveBook(string bookId)
+    {
+        var userId = _userManager.GetUserId(User);
+        await _readingListService.RemoveBookAsync(userId, bookId);
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateStatus(string bookId, ReadingStatus status)
+    {
+        var userId = _userManager.GetUserId(User);
+        await _readingListService.UpdateBookStatusAsync(userId, bookId, (Services.Models.ReadingStatus)status);
+        return RedirectToAction(nameof(Index));
     }
 }

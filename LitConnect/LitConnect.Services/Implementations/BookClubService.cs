@@ -94,11 +94,11 @@ public class BookClubService : IBookClubService
                 IsUserAdmin = bc.Users.Any(u => u.UserId == userId && u.IsAdmin && !u.IsDeleted),
                 CurrentBook = bc.CurrentBookId != null ? new BookDto
                 {
-                    Id = bc.Books.First(b => b.Id == bc.CurrentBookId).Id,
+                    Id = bc.CurrentBookId,
                     Title = bc.Books.First(b => b.Id == bc.CurrentBookId).Title,
                     Author = bc.Books.First(b => b.Id == bc.CurrentBookId).Author
                 } : null,
-                Books = bc.Books.Select(b => new BookDto
+                Books = bc.Books.Where(b => !b.IsDeleted).Select(b => new BookDto
                 {
                     Id = b.Id,
                     Title = b.Title,
@@ -109,10 +109,30 @@ public class BookClubService : IBookClubService
                         .Select(bg => new GenreDto
                         {
                             Id = bg.Genre.Id,
-                            Name = bg.Genre.Name,
-                            BooksCount = bg.Genre.Books.Count(b => !b.IsDeleted)
+                            Name = bg.Genre.Name
                         }).ToList()
                 }).ToList(),
+                Discussions = bc.Discussions
+                    .Where(d => !d.IsDeleted)
+                    .OrderByDescending(d => d.CreatedOn)
+                    .Select(d => new DiscussionDto
+                    {
+                        Id = d.Id,
+                        Title = d.Title,
+                        AuthorName = $"{d.Author.FirstName} {d.Author.LastName}",
+                        CreatedOn = d.CreatedOn,
+                        BookTitle = d.Book != null ? d.Book.Title : null
+                    }).ToList(),
+                Meetings = bc.Meetings
+                    .Where(m => !m.IsDeleted)
+                    .OrderBy(m => m.ScheduledDate)
+                    .Select(m => new MeetingDto
+                    {
+                        Id = m.Id,
+                        Title = m.Title,
+                        ScheduledDate = m.ScheduledDate,
+                        BookTitle = m.Book != null ? m.Book.Title : null
+                    }).ToList(),
                 Members = bc.Users
                     .Where(u => !u.IsDeleted)
                     .Select(u => new MemberDto

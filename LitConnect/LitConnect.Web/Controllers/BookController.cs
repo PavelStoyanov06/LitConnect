@@ -2,6 +2,7 @@
 
 using LitConnect.Services.Contracts;
 using LitConnect.Web.Infrastructure.Mapping.Contracts;
+using LitConnect.Web.ViewModels.Book;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,8 +21,8 @@ public class BookController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var bookDtos = await _bookService.GetAllAsync();
-        var viewModels = _bookMapper.MapToAllViewModels(bookDtos);
+        var books = await _bookService.GetAllAsync();
+        var viewModels = _bookMapper.MapToAllViewModels(books);
         return View(viewModels);
     }
 
@@ -39,7 +40,35 @@ public class BookController : Controller
     }
 
     [Authorize(Roles = "Administrator")]
+    public async Task<IActionResult> Create()
+    {
+        ViewBag.Genres = await _bookService.GetAllGenresAsync();
+        return View();
+    }
+
     [HttpPost]
+    [Authorize(Roles = "Administrator")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(BookCreateViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            ViewBag.Genres = await _bookService.GetAllGenresAsync();
+            return View(model);
+        }
+
+        string bookId = await _bookService.CreateAsync(
+            model.Title,
+            model.Author,
+            model.Description,
+            model.GenreIds);
+
+        return RedirectToAction(nameof(Details), new { id = bookId });
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Administrator")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(string id)
     {
         var book = await _bookService.GetByIdAsync(id);
