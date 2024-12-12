@@ -430,4 +430,19 @@ public class BookClubService : IBookClubService
                             ubc.UserId == userId &&
                             !ubc.IsDeleted);
     }
+
+    public async Task DeleteAsync(string bookClubId, string userId)
+    {
+        var bookClub = await _context.BookClubs
+            .FirstOrDefaultAsync(bc => bc.Id == bookClubId && !bc.IsDeleted);
+
+        if (bookClub == null || bookClub.OwnerId != userId)
+        {
+            throw new InvalidOperationException("Book club not found or user is not the owner");
+        }
+
+        bookClub.IsDeleted = true;
+        await _context.SaveChangesAsync();
+    }
+
 }

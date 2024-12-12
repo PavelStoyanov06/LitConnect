@@ -37,4 +37,6 @@ public interface IBookClubService
     Task<BookClubDto> GetDetailsAsync(string id, string userId);
 
     Task<bool> IsUserMemberAsync(string bookClubId, string userId);
+
+    Task DeleteAsync(string bookClubId, string userId);
 }

@@ -171,4 +171,13 @@ public class BookClubController : Controller
         await _bookClubService.SetAdminStatusAsync(bookClubId, userId, currentUserId, isAdmin);
         return RedirectToAction(nameof(Members), new { id = bookClubId });
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(string id)
+    {
+        var userId = _userManager.GetUserId(User);
+        await _bookClubService.DeleteAsync(id, userId);
+        return RedirectToAction(nameof(Index));
+    }
 }
