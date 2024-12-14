@@ -1,4 +1,5 @@
-﻿using LitConnect.Data;
+﻿using LitConnect.Common;
+using LitConnect.Data;
 using LitConnect.Data.Models;
 using LitConnect.Services.Implementations;
 using Microsoft.EntityFrameworkCore;
@@ -36,69 +37,89 @@ public class ReadingListServiceTests : IDisposable
     [Test]
     public async Task GetByUserIdAsync_ShouldReturnUserReadingList()
     {
+        // Arrange
         await SeedDataAsync();
         var userId = "user1";
 
+        // Act
         var result = await readingListService.GetByUserIdAsync(userId);
 
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Books.Count(), Is.EqualTo(2));
-        Assert.That(result.UserId, Is.EqualTo(userId));
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Books.Count(), Is.EqualTo(2));
+            Assert.That(result.UserId, Is.EqualTo(userId));
+        });
     }
 
     [Test]
     public async Task AddBookAsync_ShouldAddBookToReadingList()
     {
+        // Arrange
         await SeedDataAsync();
         var userId = "user1";
         var bookId = "book3";
 
+        // Act
         await readingListService.AddBookAsync(userId, bookId);
 
+        // Assert
         var readingList = await dbContext.ReadingLists
-            .Include(rl => rl.Books)
+            .Include(rl => rl.BookStatuses)
             .FirstOrDefaultAsync(rl => rl.UserId == userId);
 
-        Assert.That(readingList!.Books.Any(b => b.Id == bookId), Is.True);
+        Assert.That(readingList!.BookStatuses.Any(bs => bs.BookId == bookId), Is.True);
+        Assert.That(readingList.BookStatuses.First(bs => bs.BookId == bookId).Status,
+            Is.EqualTo(ReadingStatus.WantToRead));
     }
 
     [Test]
     public async Task RemoveBookAsync_ShouldRemoveBookFromReadingList()
     {
+        // Arrange
         await SeedDataAsync();
         var userId = "user1";
         var bookId = "book1";
 
+        // Act
         await readingListService.RemoveBookAsync(userId, bookId);
 
+        // Assert
         var readingList = await dbContext.ReadingLists
-            .Include(rl => rl.Books)
+            .Include(rl => rl.BookStatuses)
             .FirstOrDefaultAsync(rl => rl.UserId == userId);
 
-        Assert.That(readingList!.Books.Any(b => b.Id == bookId), Is.False);
+        Assert.That(readingList!.BookStatuses.Any(bs => bs.BookId == bookId), Is.False);
     }
 
     [Test]
     public async Task HasBookAsync_WithExistingBook_ShouldReturnTrue()
     {
+        // Arrange
         await SeedDataAsync();
         var userId = "user1";
         var bookId = "book1";
 
+        // Act
         var result = await readingListService.HasBookAsync(userId, bookId);
 
+        // Assert
         Assert.That(result, Is.True);
     }
 
     [Test]
     public async Task HasBookAsync_WithNonExistingBook_ShouldReturnFalse()
     {
+        // Arrange
         await SeedDataAsync();
         var userId = "user1";
         var bookId = "nonexistent";
 
+        // Act
         var result = await readingListService.HasBookAsync(userId, bookId);
 
+        // Assert
         Assert.That(result, Is.False);
     }
 
@@ -142,7 +163,19 @@ public class ReadingListServiceTests : IDisposable
         {
             Id = "readinglist1",
             UserId = "user1",
-            Books = new List<Book> { books[0], books[1] }
+            BookStatuses = new List<BookReadingStatus>
+            {
+                new BookReadingStatus
+                {
+                    BookId = "book1",
+                    Status = ReadingStatus.WantToRead
+                },
+                new BookReadingStatus
+                {
+                    BookId = "book2",
+                    Status = ReadingStatus.Reading
+                }
+            }
         };
 
         await dbContext.Users.AddAsync(user);

@@ -1,4 +1,5 @@
-﻿using LitConnect.Data.Models;
+﻿using LitConnect.Common;
+using LitConnect.Data.Models;
 using LitConnect.Services.Contracts;
 using LitConnect.Services.Models;
 using LitConnect.Web.Controllers;
@@ -42,7 +43,17 @@ public class ReadingListControllerTests : IDisposable
             Id = "list1",
             UserId = userId,
             UserName = "Test User",
-            Books = new List<ReadingListBookDto>()
+            Books = new List<ReadingListBookDto>
+            {
+                new ReadingListBookDto
+                {
+                    Id = "book1",
+                    Title = "Test Book",
+                    Author = "Test Author",
+                    Status = ReadingStatus.WantToRead,
+                    Genres = new[] { "Fiction" }
+                }
+            }
         };
 
         var expectedViewModel = new ReadingListViewModel
@@ -50,7 +61,18 @@ public class ReadingListControllerTests : IDisposable
             Id = "list1",
             UserId = userId,
             UserName = "Test User",
-            Books = new List<ReadingListBookViewModel>()
+            BooksCount = 1,
+            Books = new List<ReadingListBookViewModel>
+            {
+                new ReadingListBookViewModel
+                {
+                    Id = "book1",
+                    Title = "Test Book",
+                    Author = "Test Author",
+                    Status = ReadingStatus.WantToRead,
+                    Genres = new[] { "Fiction" }
+                }
+            }
         };
 
         userManagerMock.Setup(m => m.GetUserId(It.IsAny<System.Security.Claims.ClaimsPrincipal>()))
@@ -77,7 +99,7 @@ public class ReadingListControllerTests : IDisposable
     {
         var userId = "user1";
         var bookId = "book1";
-        var status = LitConnect.Web.ViewModels.ReadingList.ReadingStatus.Reading;
+        var status = ReadingStatus.Reading;
 
         userManagerMock.Setup(m => m.GetUserId(It.IsAny<System.Security.Claims.ClaimsPrincipal>()))
             .Returns(userId);
@@ -92,7 +114,7 @@ public class ReadingListControllerTests : IDisposable
         });
 
         readingListServiceMock.Verify(
-            s => s.UpdateBookStatusAsync(userId, bookId, (LitConnect.Services.Models.ReadingStatus)status),
+            s => s.UpdateBookStatusAsync(userId, bookId, status),
             Times.Once);
     }
 
