@@ -1,5 +1,7 @@
 ﻿namespace LitConnect.Web.ViewModels.ReadingList;
 
+using LitConnect.Common;
+
 public class ReadingListBookViewModel
 {
     public string Id { get; set; } = null!;

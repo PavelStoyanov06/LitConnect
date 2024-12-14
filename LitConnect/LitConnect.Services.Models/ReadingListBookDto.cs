@@ -1,5 +1,7 @@
 ﻿namespace LitConnect.Services.Models;
 
+using LitConnect.Common;
+
 public class ReadingListBookDto
 {
     public string Id { get; set; } = null!;

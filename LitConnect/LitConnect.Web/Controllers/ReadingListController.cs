@@ -1,9 +1,7 @@
-﻿namespace LitConnect.Web.Controllers;
-
+﻿using LitConnect.Common;
 using LitConnect.Data.Models;
 using LitConnect.Services.Contracts;
 using LitConnect.Web.Infrastructure.Mapping.Contracts;
-using LitConnect.Web.ViewModels.ReadingList;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -61,7 +59,7 @@ public class ReadingListController : Controller
     public async Task<IActionResult> UpdateStatus(string bookId, ReadingStatus status)
     {
         var userId = _userManager.GetUserId(User);
-        await _readingListService.UpdateBookStatusAsync(userId, bookId, (Services.Models.ReadingStatus)status);
+        await _readingListService.UpdateBookStatusAsync(userId, bookId, status);
         return RedirectToAction(nameof(Index));
     }
 }

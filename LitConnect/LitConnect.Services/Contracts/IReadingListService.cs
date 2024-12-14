@@ -1,6 +1,7 @@
 ﻿namespace LitConnect.Services.Contracts;
 
 using LitConnect.Services.Models;
+using LitConnect.Common;
 
 public interface IReadingListService
 {

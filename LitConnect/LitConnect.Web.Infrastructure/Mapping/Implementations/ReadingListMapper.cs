@@ -13,6 +13,7 @@ public class ReadingListMapper : IReadingListMapper
             Id = dto.Id,
             UserId = dto.UserId,
             UserName = dto.UserName,
+            BooksCount = dto.Books.Count(),
             Books = dto.Books.Select(MapToBookViewModel).ToList()
         };
     }
@@ -24,7 +25,7 @@ public class ReadingListMapper : IReadingListMapper
             Id = dto.Id,
             Title = dto.Title,
             Author = dto.Author,
-            Status = (ViewModels.ReadingList.ReadingStatus)dto.Status,
+            Status = dto.Status,
             Genres = dto.Genres
         };
     }

@@ -73,6 +73,18 @@ public class LitConnectDbContext : IdentityDbContext<ApplicationUser>
             .HasForeignKey(bc => bc.CurrentBookId)
             .OnDelete(DeleteBehavior.SetNull);
 
+        builder.Entity<BookReadingStatus>()
+            .HasOne(brs => brs.ReadingList)
+            .WithMany(rl => rl.BookStatuses)
+            .HasForeignKey(brs => brs.ReadingListId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<BookReadingStatus>()
+            .HasOne(brs => brs.Book)
+            .WithMany()
+            .HasForeignKey(brs => brs.BookId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         // Seed data configurations
         builder.ConfigureIdentity();
         builder.ConfigureGenre();

@@ -9,7 +9,7 @@ public class ReadingList : BaseModel
 {
     public ReadingList()
     {
-        this.Books = new HashSet<Book>();
+        this.BookStatuses = new HashSet<BookReadingStatus>();
     }
 
     [Required]
@@ -20,6 +20,6 @@ public class ReadingList : BaseModel
     [Comment("Reference to the user who owns this reading list")]
     public virtual ApplicationUser User { get; set; } = null!;
 
-    [Comment("Collection of books in this reading list")]
-    public virtual ICollection<Book> Books { get; set; }
+    [Comment("Collection of book statuses in this reading list")]
+    public virtual ICollection<BookReadingStatus> BookStatuses { get; set; }
 }
