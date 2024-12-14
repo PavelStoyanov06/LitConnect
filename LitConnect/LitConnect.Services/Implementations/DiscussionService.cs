@@ -33,9 +33,6 @@ public class DiscussionService : IDiscussionService
 
     public async Task<DiscussionDto?> GetDetailsAsync(string id, string userId)
     {
-        Console.WriteLine(await _context.Discussions
-            .FirstOrDefaultAsync(d => d.Id == id && !d.IsDeleted));
-
         return await _context.Discussions
             .Where(d => d.Id == id && !d.IsDeleted)
             .Select(d => new DiscussionDto
