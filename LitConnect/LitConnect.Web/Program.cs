@@ -1,7 +1,6 @@
 using LitConnect.Data;
 using LitConnect.Data.Models;
 using LitConnect.Services.Contracts;
-using LitConnect.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using LitConnect.Services.Implementations;

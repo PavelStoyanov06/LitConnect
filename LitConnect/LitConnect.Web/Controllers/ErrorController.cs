@@ -13,6 +13,8 @@ public class ErrorController : Controller
                 return View("NotFound");
             case 401:
                 return RedirectToPage("/Identity/Account/Login");
+            case 500:
+                return View("InternalServerError");
             default:
                 return View("Error");
         }
