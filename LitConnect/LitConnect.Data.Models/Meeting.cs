@@ -1,20 +1,20 @@
 ﻿namespace LitConnect.Data.Models;
 
-using LitConnect.Common;
 using LitConnect.Data.Models.Common;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using static LitConnect.Common.ValidationConstants.Meeting;
 
 public class Meeting : BaseModel
 {
     [Required]
-    [MinLength(ValidationConstants.Meeting.TitleMinLength)]
-    [MaxLength(ValidationConstants.Meeting.TitleMaxLength)]
+    [MinLength(TitleMinLength)]
+    [MaxLength(TitleMaxLength)]
     [Comment("Title or topic of the meeting")]
     public string Title { get; set; } = null!;
 
-    [MaxLength(ValidationConstants.Meeting.DescriptionMaxLength)]
+    [MaxLength(DescriptionMaxLength)]
     [Comment("Description of the meeting agenda or discussion points")]
     public string? Description { get; set; }
 

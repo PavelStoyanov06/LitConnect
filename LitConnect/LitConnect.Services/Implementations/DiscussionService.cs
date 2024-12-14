@@ -33,6 +33,9 @@ public class DiscussionService : IDiscussionService
 
     public async Task<DiscussionDto?> GetDetailsAsync(string id, string userId)
     {
+        Console.WriteLine(await _context.Discussions
+            .FirstOrDefaultAsync(d => d.Id == id && !d.IsDeleted));
+
         return await _context.Discussions
             .Where(d => d.Id == id && !d.IsDeleted)
             .Select(d => new DiscussionDto
@@ -45,6 +48,9 @@ public class DiscussionService : IDiscussionService
                 BookClubName = d.BookClub.Name,
                 BookTitle = d.Book != null ? d.Book.Title : null,
                 CreatedOn = d.CreatedOn,
+                IsCurrentUserAuthor = d.AuthorId == userId,
+                IsCurrentUserAdmin = d.BookClub.Users.Any(u => u.UserId == userId && u.IsAdmin && !u.IsDeleted),
+                IsCurrentUserOwner = d.BookClub.OwnerId == userId,
                 Comments = d.Comments
                     .Where(c => !c.IsDeleted)
                     .OrderBy(c => c.CreatedOn)

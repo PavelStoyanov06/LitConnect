@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿namespace LitConnect.Web.ViewModels;
+
+using System.ComponentModel.DataAnnotations;
 
 public class LoginViewModel
 {

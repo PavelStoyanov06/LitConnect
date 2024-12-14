@@ -22,7 +22,9 @@ public class BookClubDetailsViewModel
 
     public bool IsUserAdmin { get; set; }
 
-    public bool IsUserOwnerOrAdmin => IsUserOwner || IsUserAdmin;
+    public bool IsCurrentUserAuthor { get; set; }
+
+    public bool IsUserOwnerOrAdmin => IsUserOwner || IsUserAdmin || IsCurrentUserAuthor;
 
     public IEnumerable<DiscussionInListViewModel> Discussions { get; set; }
         = new List<DiscussionInListViewModel>();

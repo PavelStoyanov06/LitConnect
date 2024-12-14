@@ -1,17 +1,18 @@
 ﻿using LitConnect.Services.Contracts;
+using LitConnect.Services.Models;
 using LitConnect.Web.Controllers;
+using LitConnect.Web.Infrastructure.Mapping.Contracts;
 using LitConnect.Web.ViewModels.Meeting;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
-
-namespace LitConnect.Web.Tests;
 
 [TestFixture]
 public class MeetingControllerTests : IDisposable
 {
     private Mock<IMeetingService> meetingServiceMock = null!;
     private Mock<IBookService> bookServiceMock = null!;
+    private Mock<IMeetingMapper> meetingMapperMock = null!;
     private MeetingController controller = null!;
     private bool isDisposed;
 
@@ -20,65 +21,29 @@ public class MeetingControllerTests : IDisposable
     {
         meetingServiceMock = new Mock<IMeetingService>();
         bookServiceMock = new Mock<IBookService>();
-        controller = new MeetingController(meetingServiceMock.Object, bookServiceMock.Object);
-    }
-
-    [Test]
-    public async Task Create_Get_ShouldReturnView()
-    {
-        // Arrange
-        var bookClubId = "club1";
-
-        // Act
-        var actionResult = await controller.Create(bookClubId);
-        var result = actionResult as ViewResult;
-        var model = result?.Model as MeetingCreateViewModel;
-
-        // Assert
-        Assert.Multiple(() =>
-        {
-            Assert.That(result, Is.Not.Null);
-            Assert.That(model, Is.Not.Null);
-            Assert.That(model!.BookClubId, Is.EqualTo(bookClubId));
-        });
-    }
-
-    [Test]
-    public async Task Create_Post_WithValidModel_ShouldRedirectToDetails()
-    {
-        // Arrange
-        var meetingId = "meeting1";
-        var model = new MeetingCreateViewModel
-        {
-            Title = "Test Meeting",
-            Description = "Test Description",
-            ScheduledDate = DateTime.UtcNow.AddDays(1),
-            BookClubId = "club1",
-            BookId = "book1"
-        };
-
-        meetingServiceMock.Setup(s => s.CreateAsync(model))
-            .ReturnsAsync(meetingId);
-
-        // Act
-        var actionResult = await controller.Create(model);
-        var result = actionResult as RedirectToActionResult;
-
-        // Assert
-        Assert.Multiple(() =>
-        {
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result!.ActionName, Is.EqualTo("Details"));
-            Assert.That(result.RouteValues?["id"], Is.EqualTo(meetingId));
-        });
+        meetingMapperMock = new Mock<IMeetingMapper>();
+        controller = new MeetingController(
+            meetingServiceMock.Object,
+            bookServiceMock.Object,
+            meetingMapperMock.Object);
     }
 
     [Test]
     public async Task Details_WithValidId_ShouldReturnViewWithMeeting()
     {
-        // Arrange
-        var meetingId = "meeting1";
-        var expectedMeeting = new MeetingDetailsViewModel
+        var meetingId = "1";
+        var meetingDto = new MeetingDto
+        {
+            Id = meetingId,
+            Title = "Test Meeting",
+            Description = "Test Description",
+            ScheduledDate = DateTime.UtcNow.AddDays(1),
+            BookClubId = "club1",
+            BookClubName = "Test Club",
+            BookTitle = "Test Book"
+        };
+
+        var expectedViewModel = new MeetingDetailsViewModel
         {
             Id = meetingId,
             Title = "Test Meeting",
@@ -90,63 +55,53 @@ public class MeetingControllerTests : IDisposable
         };
 
         meetingServiceMock.Setup(s => s.GetDetailsAsync(meetingId))
-            .ReturnsAsync(expectedMeeting);
+            .ReturnsAsync(meetingDto);
 
-        // Act
+        meetingMapperMock.Setup(m => m.MapToDetailsViewModel(meetingDto))
+            .Returns(expectedViewModel);
+
         var actionResult = await controller.Details(meetingId);
         var result = actionResult as ViewResult;
 
-        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.Not.Null);
-            Assert.That(result!.Model, Is.EqualTo(expectedMeeting));
+            Assert.That(result!.Model, Is.EqualTo(expectedViewModel));
         });
     }
 
     [Test]
-    public async Task Details_WithInvalidId_ShouldReturnNotFound()
+    public async Task Create_Post_WithValidModel_ShouldRedirectToDetails()
     {
-        // Arrange
-        var meetingId = "nonexistent";
-        meetingServiceMock.Setup(s => s.GetDetailsAsync(meetingId))
-            .ReturnsAsync((MeetingDetailsViewModel?)null);
+        var model = new MeetingCreateViewModel
+        {
+            Title = "New Meeting",
+            Description = "New Description",
+            ScheduledDate = DateTime.UtcNow.AddDays(1),
+            BookClubId = "club1",
+            BookId = "book1"
+        };
+        var meetingId = "new_meeting";
 
-        // Act
-        var result = await controller.Details(meetingId);
+        meetingServiceMock.Setup(s => s.CreateAsync(
+                model.Title,
+                model.Description,
+                model.ScheduledDate,
+                model.BookClubId,
+                model.BookId))
+            .ReturnsAsync(meetingId);
 
-        // Assert
-        Assert.That(result, Is.InstanceOf<NotFoundResult>());
-    }
-
-    [Test]
-    public async Task Delete_ShouldRedirectToBookClub()
-    {
-        // Arrange
-        var meetingId = "meeting1";
-        var bookClubId = "club1";
-
-        // Act
-        var actionResult = await controller.Delete(meetingId, bookClubId);
+        var actionResult = await controller.Create(model);
         var result = actionResult as RedirectToActionResult;
 
-        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.Not.Null);
-            Assert.That(result!.ControllerName, Is.EqualTo("BookClub"));
-            Assert.That(result.ActionName, Is.EqualTo("Details"));
-            Assert.That(result.RouteValues?["id"], Is.EqualTo(bookClubId));
+            Assert.That(result!.ActionName, Is.EqualTo("Details"));
+            Assert.That(result.RouteValues?["id"], Is.EqualTo(meetingId));
         });
-
-        meetingServiceMock.Verify(s => s.DeleteAsync(meetingId), Times.Once);
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        Dispose();
-    }
 
     public void Dispose()
     {

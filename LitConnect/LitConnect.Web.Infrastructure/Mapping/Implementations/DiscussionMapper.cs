@@ -19,6 +19,9 @@ public class DiscussionMapper : IDiscussionMapper
             BookClubName = dto.BookClubName,
             BookTitle = dto.BookTitle,
             CreatedOn = dto.CreatedOn,
+            IsCurrentUserAuthor = dto.IsCurrentUserAuthor,
+            IsCurrentUserAdmin = dto.IsCurrentUserAdmin,
+            IsCurrentUserOwner = dto.IsCurrentUserOwner,
             Comments = dto.Comments.Select(c => new CommentViewModel
             {
                 Id = c.Id,

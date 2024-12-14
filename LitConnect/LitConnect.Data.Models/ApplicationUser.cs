@@ -1,9 +1,9 @@
 ﻿namespace LitConnect.Data.Models;
 
-using LitConnect.Common;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using static LitConnect.Common.ValidationConstants.User;
 
 public class ApplicationUser : IdentityUser
 {
@@ -13,13 +13,13 @@ public class ApplicationUser : IdentityUser
     }
 
     [Required]
-    [MinLength(ValidationConstants.User.FirstNameMinLength)]
-    [MaxLength(ValidationConstants.User.FirstNameMaxLength)]
+    [MinLength(FirstNameMinLength)]
+    [MaxLength(FirstNameMaxLength)]
     public string FirstName { get; set; } = null!;
 
     [Required]
-    [MinLength(ValidationConstants.User.LastNameMinLength)]
-    [MaxLength(ValidationConstants.User.LastNameMaxLength)]
+    [MinLength(LastNameMinLength)]
+    [MaxLength(LastNameMaxLength)]
     public string LastName { get; set; } = null!;
 
     [Comment("Book clubs where the user is a member")]

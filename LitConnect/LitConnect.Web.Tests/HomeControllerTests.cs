@@ -29,34 +29,28 @@ public class HomeControllerTests : IDisposable
     [Test]
     public void Index_ShouldReturnView()
     {
-        // Act
         var actionResult = controller.Index();
         var result = actionResult as ViewResult;
 
-        // Assert
         Assert.That(result, Is.Not.Null);
     }
 
     [Test]
     public void Privacy_ShouldReturnView()
-    {
-        // Act
+    {        
         var actionResult = controller.Privacy();
         var result = actionResult as ViewResult;
 
-        // Assert
         Assert.That(result, Is.Not.Null);
     }
 
     [Test]
     public void Error_ShouldReturnViewWithErrorViewModel()
     {
-        // Act
         var actionResult = controller.Error();
         var result = actionResult as ViewResult;
         var model = result?.Model as ErrorViewModel;
-
-        // Assert
+        
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.Not.Null);

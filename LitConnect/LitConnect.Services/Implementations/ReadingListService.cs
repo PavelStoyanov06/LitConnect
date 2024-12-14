@@ -34,6 +34,13 @@ public class ReadingListService : IReadingListService
             };
             await _context.ReadingLists.AddAsync(readingList);
             await _context.SaveChangesAsync();
+
+            readingList = await _context.ReadingLists
+                .Include(rl => rl.User)
+                .Include(rl => rl.Books)
+                    .ThenInclude(b => b.Genres)
+                        .ThenInclude(bg => bg.Genre)
+                .FirstAsync(rl => rl.Id == readingList.Id);
         }
 
         return new ReadingListDto
@@ -103,12 +110,13 @@ public class ReadingListService : IReadingListService
     public async Task UpdateBookStatusAsync(string userId, string bookId, ReadingStatus status)
     {
         var readingList = await _context.ReadingLists
-            .Include(rl => rl.Books)
             .FirstOrDefaultAsync(rl => rl.UserId == userId && !rl.IsDeleted);
 
-        if (readingList != null && readingList.Books.Any(b => b.Id == bookId))
+        if (readingList != null)
         {
-            SetBookStatus(readingList.Id, bookId, status);
+            var key = $"{readingList.Id}_{bookId}";
+            _bookStatuses[key] = status;
+
             await _context.SaveChangesAsync();
         }
     }

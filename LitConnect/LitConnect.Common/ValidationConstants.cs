@@ -52,5 +52,6 @@ public static class ValidationConstants
     public static class Comment
     {
         public const int ContentMaxLength = 500;
+        public const int ContentMinLength = 1;
     }
 }

@@ -1,7 +1,6 @@
 ﻿using LitConnect.Data;
 using LitConnect.Data.Models;
 using LitConnect.Services.Contracts;
-using LitConnect.Services.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace LitConnect.Services.Implementations;

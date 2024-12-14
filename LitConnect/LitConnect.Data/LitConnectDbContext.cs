@@ -10,13 +10,13 @@ public class LitConnectDbContext : IdentityDbContext<ApplicationUser>
     public LitConnectDbContext(DbContextOptions<LitConnectDbContext> options)
         : base(options)
     {
+        this.Database.EnsureCreated();
     }
 
     public DbSet<Book> Books { get; set; }
     public DbSet<BookClub> BookClubs { get; set; }
     public DbSet<Discussion> Discussions { get; set; }
     public DbSet<Meeting> Meetings { get; set; }
-    public DbSet<Review> Reviews { get; set; }
     public DbSet<UserBookClub> UsersBookClubs { get; set; }
     public DbSet<ReadingList> ReadingLists { get; set; }
     public DbSet<Genre> Genres { get; set; }

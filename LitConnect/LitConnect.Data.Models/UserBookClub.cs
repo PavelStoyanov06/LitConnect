@@ -1,7 +1,6 @@
 ﻿namespace LitConnect.Data.Models;
 
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 [PrimaryKey(nameof(BookClubId), nameof(UserId))]

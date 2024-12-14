@@ -30,10 +30,12 @@ public class BookClubController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var bookClubs = await _bookClubService.GetAllAsync();
+        var userId = _userManager.GetUserId(User);
+        var bookClubs = await _bookClubService.GetAllAsync(userId);
         var viewModels = _bookClubMapper.MapToAllViewModels(bookClubs);
         return View(viewModels);
     }
+
 
     public async Task<IActionResult> MyClubs()
     {

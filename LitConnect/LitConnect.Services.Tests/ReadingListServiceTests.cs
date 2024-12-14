@@ -1,7 +1,6 @@
 ﻿using LitConnect.Data;
 using LitConnect.Data.Models;
 using LitConnect.Services.Implementations;
-using LitConnect.Web.ViewModels.ReadingList;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 
@@ -37,14 +36,11 @@ public class ReadingListServiceTests : IDisposable
     [Test]
     public async Task GetByUserIdAsync_ShouldReturnUserReadingList()
     {
-        // Arrange
         await SeedDataAsync();
         var userId = "user1";
 
-        // Act
         var result = await readingListService.GetByUserIdAsync(userId);
 
-        // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Books.Count(), Is.EqualTo(2));
         Assert.That(result.UserId, Is.EqualTo(userId));
@@ -53,15 +49,12 @@ public class ReadingListServiceTests : IDisposable
     [Test]
     public async Task AddBookAsync_ShouldAddBookToReadingList()
     {
-        // Arrange
         await SeedDataAsync();
         var userId = "user1";
-        var bookId = "book3"; // Book not yet in reading list
+        var bookId = "book3";
 
-        // Act
         await readingListService.AddBookAsync(userId, bookId);
 
-        // Assert
         var readingList = await dbContext.ReadingLists
             .Include(rl => rl.Books)
             .FirstOrDefaultAsync(rl => rl.UserId == userId);
@@ -72,15 +65,12 @@ public class ReadingListServiceTests : IDisposable
     [Test]
     public async Task RemoveBookAsync_ShouldRemoveBookFromReadingList()
     {
-        // Arrange
         await SeedDataAsync();
         var userId = "user1";
         var bookId = "book1";
 
-        // Act
         await readingListService.RemoveBookAsync(userId, bookId);
 
-        // Assert
         var readingList = await dbContext.ReadingLists
             .Include(rl => rl.Books)
             .FirstOrDefaultAsync(rl => rl.UserId == userId);
@@ -91,30 +81,24 @@ public class ReadingListServiceTests : IDisposable
     [Test]
     public async Task HasBookAsync_WithExistingBook_ShouldReturnTrue()
     {
-        // Arrange
         await SeedDataAsync();
         var userId = "user1";
         var bookId = "book1";
 
-        // Act
         var result = await readingListService.HasBookAsync(userId, bookId);
 
-        // Assert
         Assert.That(result, Is.True);
     }
 
     [Test]
     public async Task HasBookAsync_WithNonExistingBook_ShouldReturnFalse()
     {
-        // Arrange
         await SeedDataAsync();
         var userId = "user1";
         var bookId = "nonexistent";
 
-        // Act
         var result = await readingListService.HasBookAsync(userId, bookId);
 
-        // Assert
         Assert.That(result, Is.False);
     }
 

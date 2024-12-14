@@ -1,6 +1,8 @@
 ﻿using LitConnect.Data.Models;
 using LitConnect.Services.Contracts;
+using LitConnect.Services.Models;
 using LitConnect.Web.Controllers;
+using LitConnect.Web.Infrastructure.Mapping.Contracts;
 using LitConnect.Web.ViewModels.BookClub;
 using LitConnect.Web.ViewModels.Discussion;
 using LitConnect.Web.ViewModels.Meeting;
@@ -18,7 +20,7 @@ public class BookClubControllerTests : IDisposable
 {
     private Mock<IBookClubService> bookClubServiceMock = null!;
     private Mock<IBookService> bookServiceMock = null!;
-    private Mock<IDiscussionService> discussionServiceMock = null!;
+    private Mock<IBookClubMapper> bookClubMapperMock = null!;
     private Mock<UserManager<ApplicationUser>> userManagerMock = null!;
     private BookClubController controller = null!;
     private bool isDisposed;
@@ -28,7 +30,7 @@ public class BookClubControllerTests : IDisposable
     {
         bookClubServiceMock = new Mock<IBookClubService>();
         bookServiceMock = new Mock<IBookService>();
-        discussionServiceMock = new Mock<IDiscussionService>();
+        bookClubMapperMock = new Mock<IBookClubMapper>();
 
         var store = new Mock<IUserStore<ApplicationUser>>();
         var opts = new Mock<IOptions<IdentityOptions>>();
@@ -54,16 +56,39 @@ public class BookClubControllerTests : IDisposable
         controller = new BookClubController(
             bookClubServiceMock.Object,
             bookServiceMock.Object,
-            discussionServiceMock.Object,
+            bookClubMapperMock.Object,
             userManagerMock.Object);
     }
 
     [Test]
     public async Task Index_ShouldReturnViewWithBookClubs()
     {
-        // Arrange
         var userId = "user1";
-        var expectedClubs = new List<BookClubAllViewModel>
+        var bookClubDtos = new List<BookClubDto>
+        {
+            new()
+            {
+                Id = "1",
+                Name = "Club 1",
+                Description = "Description 1",
+                OwnerId = "owner1",
+                OwnerName = "Owner 1",
+                MembersCount = 1,
+                IsUserMember = true
+            },
+            new()
+            {
+                Id = "2",
+                Name = "Club 2",
+                Description = "Description 2",
+                OwnerId = "owner2",
+                OwnerName = "Owner 2",
+                MembersCount = 1,
+                IsUserMember = false
+            }
+        };
+
+        var expectedViewModels = new List<BookClubAllViewModel>
         {
             new()
             {
@@ -87,27 +112,41 @@ public class BookClubControllerTests : IDisposable
             .Returns(userId);
 
         bookClubServiceMock.Setup(s => s.GetAllAsync(userId))
-            .ReturnsAsync(expectedClubs);
+            .ReturnsAsync(bookClubDtos);
 
-        // Act
+        bookClubMapperMock.Setup(m => m.MapToAllViewModels(bookClubDtos))
+            .Returns(expectedViewModels);
+
         var actionResult = await controller.Index();
         var result = actionResult as ViewResult;
 
-        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.Not.Null);
-            Assert.That(result!.Model, Is.EqualTo(expectedClubs));
+            Assert.That(result!.Model, Is.EqualTo(expectedViewModels));
         });
     }
 
     [Test]
     public async Task Details_WithValidId_ShouldReturnViewWithDetails()
     {
-        // Arrange
         var clubId = "1";
         var userId = "user1";
-        var expectedDetails = new BookClubDetailsViewModel
+
+        var bookClubDto = new BookClubDto
+        {
+            Id = clubId,
+            Name = "Test Club",
+            Description = "Test Description",
+            OwnerId = "owner1",
+            OwnerName = "Owner Name",
+            MembersCount = 1,
+            IsUserMember = true,
+            IsUserOwner = false,
+            IsUserAdmin = false
+        };
+
+        var expectedViewModel = new BookClubDetailsViewModel
         {
             Id = clubId,
             Name = "Test Club",
@@ -127,38 +166,71 @@ public class BookClubControllerTests : IDisposable
             .Returns(userId);
 
         bookClubServiceMock.Setup(s => s.GetDetailsAsync(clubId, userId))
-            .ReturnsAsync(expectedDetails);
+            .ReturnsAsync(bookClubDto);
 
-        // Act
+        bookClubMapperMock.Setup(m => m.MapToDetailsViewModel(bookClubDto))
+            .Returns(expectedViewModel);
+
         var actionResult = await controller.Details(clubId);
         var result = actionResult as ViewResult;
 
-        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.Not.Null);
-            Assert.That(result!.Model, Is.EqualTo(expectedDetails));
+            Assert.That(result!.Model, Is.EqualTo(expectedViewModel));
         });
     }
 
     [Test]
-    public async Task Details_WithInvalidId_ShouldReturnNotFound()
+    public async Task Create_Post_WithValidModel_ShouldRedirectToDetails()
     {
-        // Arrange
-        var clubId = "nonexistent";
+        var userId = "user1";
+        var model = new BookClubCreateViewModel
+        {
+            Name = "New Club",
+            Description = "New Description"
+        };
+        var expectedClubId = "new_club";
+
+        userManagerMock.Setup(m => m.GetUserId(It.IsAny<System.Security.Claims.ClaimsPrincipal>()))
+            .Returns(userId);
+
+        bookClubServiceMock.Setup(s => s.CreateAsync(model.Name, model.Description, userId))
+            .ReturnsAsync(expectedClubId);
+
+        var actionResult = await controller.Create(model);
+        var result = actionResult as RedirectToActionResult;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result!.ActionName, Is.EqualTo("Details"));
+            Assert.That(result.RouteValues?["id"], Is.EqualTo(expectedClubId));
+        });
+    }
+
+    [Test]
+    public async Task Join_ShouldRedirectToDetails()
+    {
+        var clubId = "club1";
         var userId = "user1";
 
         userManagerMock.Setup(m => m.GetUserId(It.IsAny<System.Security.Claims.ClaimsPrincipal>()))
             .Returns(userId);
 
-        bookClubServiceMock.Setup(s => s.GetDetailsAsync(clubId, userId))
-            .ReturnsAsync((BookClubDetailsViewModel?)null);
+        var actionResult = await controller.Join(clubId);
+        var result = actionResult as RedirectToActionResult;
 
-        // Act
-        var result = await controller.Details(clubId);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result!.ActionName, Is.EqualTo("Details"));
+            Assert.That(result.RouteValues?["id"], Is.EqualTo(clubId));
+        });
 
-        // Assert
-        Assert.That(result, Is.InstanceOf<NotFoundResult>());
+        bookClubServiceMock.Verify(
+            s => s.JoinBookClubAsync(clubId, userId),
+            Times.Once);
     }
 
     [TearDown]

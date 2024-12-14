@@ -4,12 +4,8 @@ using LitConnect.Web.Controllers;
 using LitConnect.Web.ViewModels.Comment;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
-
-namespace LitConnect.Web.Tests;
 
 [TestFixture]
 public class CommentControllerTests : IDisposable
@@ -23,20 +19,9 @@ public class CommentControllerTests : IDisposable
     public void Setup()
     {
         commentServiceMock = new Mock<ICommentService>();
-        var store = new Mock<IUserStore<ApplicationUser>>();
-        var opts = new Mock<IOptions<IdentityOptions>>();
-        var passHasher = new Mock<IPasswordHasher<ApplicationUser>>();
-        var userValidators = new List<IUserValidator<ApplicationUser>>();
-        var passValidators = new List<IPasswordValidator<ApplicationUser>>();
-        var keyNormalizer = new Mock<ILookupNormalizer>();
-        var errors = new Mock<IdentityErrorDescriber>();
-        var services = new Mock<IServiceProvider>();
-        var logger = new Mock<ILogger<UserManager<ApplicationUser>>>();
-
         userManagerMock = new Mock<UserManager<ApplicationUser>>(
-            store.Object, opts.Object, passHasher.Object, userValidators,
-            passValidators, keyNormalizer.Object, errors.Object,
-            services.Object, logger.Object);
+            Mock.Of<IUserStore<ApplicationUser>>(),
+            null!, null!, null!, null!, null!, null!, null!, null!);
 
         controller = new CommentController(commentServiceMock.Object, userManagerMock.Object);
     }
@@ -44,7 +29,6 @@ public class CommentControllerTests : IDisposable
     [Test]
     public async Task Create_WithValidModel_ShouldRedirectToDiscussion()
     {
-        // Arrange
         var userId = "user1";
         var model = new CommentCreateViewModel
         {
@@ -55,11 +39,12 @@ public class CommentControllerTests : IDisposable
         userManagerMock.Setup(m => m.GetUserId(It.IsAny<System.Security.Claims.ClaimsPrincipal>()))
             .Returns(userId);
 
-        // Act
+        commentServiceMock.Setup(s => s.CreateAsync(model.Content, model.DiscussionId, userId))
+            .ReturnsAsync("comment1");
+
         var actionResult = await controller.Create(model);
         var result = actionResult as RedirectToActionResult;
 
-        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.Not.Null);
@@ -72,7 +57,6 @@ public class CommentControllerTests : IDisposable
     [Test]
     public async Task Delete_WhenAuthorized_ShouldRedirectToDiscussion()
     {
-        // Arrange
         var commentId = "comment1";
         var discussionId = "discussion1";
         var userId = "user1";
@@ -83,11 +67,9 @@ public class CommentControllerTests : IDisposable
         commentServiceMock.Setup(s => s.IsUserAuthorAsync(commentId, userId))
             .ReturnsAsync(true);
 
-        // Act
         var actionResult = await controller.Delete(commentId, discussionId);
         var result = actionResult as RedirectToActionResult;
 
-        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.Not.Null);
@@ -96,9 +78,6 @@ public class CommentControllerTests : IDisposable
             Assert.That(result.RouteValues?["id"], Is.EqualTo(discussionId));
         });
     }
-
-    [TearDown]
-    public void TearDown() => Dispose();
 
     public void Dispose()
     {

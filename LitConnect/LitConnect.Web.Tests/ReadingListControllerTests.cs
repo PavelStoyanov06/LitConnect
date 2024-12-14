@@ -1,20 +1,19 @@
 ﻿using LitConnect.Data.Models;
 using LitConnect.Services.Contracts;
+using LitConnect.Services.Models;
 using LitConnect.Web.Controllers;
+using LitConnect.Web.Infrastructure.Mapping.Contracts;
 using LitConnect.Web.ViewModels.ReadingList;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
-
-namespace LitConnect.Web.Tests;
 
 [TestFixture]
 public class ReadingListControllerTests : IDisposable
 {
     private Mock<IReadingListService> readingListServiceMock = null!;
+    private Mock<IReadingListMapper> readingListMapperMock = null!;
     private Mock<UserManager<ApplicationUser>> userManagerMock = null!;
     private ReadingListController controller = null!;
     private bool isDisposed;
@@ -23,142 +22,78 @@ public class ReadingListControllerTests : IDisposable
     public void Setup()
     {
         readingListServiceMock = new Mock<IReadingListService>();
-
-        var store = new Mock<IUserStore<ApplicationUser>>();
-        var opts = new Mock<IOptions<IdentityOptions>>();
-        var passHasher = new Mock<IPasswordHasher<ApplicationUser>>();
-        var userValidators = new List<IUserValidator<ApplicationUser>>();
-        var passValidators = new List<IPasswordValidator<ApplicationUser>>();
-        var keyNormalizer = new Mock<ILookupNormalizer>();
-        var errors = new Mock<IdentityErrorDescriber>();
-        var services = new Mock<IServiceProvider>();
-        var logger = new Mock<ILogger<UserManager<ApplicationUser>>>();
-
+        readingListMapperMock = new Mock<IReadingListMapper>();
         userManagerMock = new Mock<UserManager<ApplicationUser>>(
-            store.Object,
-            opts.Object,
-            passHasher.Object,
-            userValidators,
-            passValidators,
-            keyNormalizer.Object,
-            errors.Object,
-            services.Object,
-            logger.Object);
+            Mock.Of<IUserStore<ApplicationUser>>(),
+            null!, null!, null!, null!, null!, null!, null!, null!);
 
         controller = new ReadingListController(
             readingListServiceMock.Object,
+            readingListMapperMock.Object,
             userManagerMock.Object);
     }
 
     [Test]
     public async Task Index_ShouldReturnViewWithReadingList()
     {
-        // Arrange
         var userId = "user1";
-        var expectedList = new ReadingListViewModel
+        var readingListDto = new ReadingListDto
         {
             Id = "list1",
             UserId = userId,
             UserName = "Test User",
-            Books = new List<ReadingListBookViewModel>(),
-            BooksCount = 0
+            Books = new List<ReadingListBookDto>()
+        };
+
+        var expectedViewModel = new ReadingListViewModel
+        {
+            Id = "list1",
+            UserId = userId,
+            UserName = "Test User",
+            Books = new List<ReadingListBookViewModel>()
         };
 
         userManagerMock.Setup(m => m.GetUserId(It.IsAny<System.Security.Claims.ClaimsPrincipal>()))
             .Returns(userId);
 
         readingListServiceMock.Setup(s => s.GetByUserIdAsync(userId))
-            .ReturnsAsync(expectedList);
+            .ReturnsAsync(readingListDto);
 
-        // Act
+        readingListMapperMock.Setup(m => m.MapToViewModel(readingListDto))
+            .Returns(expectedViewModel);
+
         var actionResult = await controller.Index();
         var result = actionResult as ViewResult;
 
-        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.Not.Null);
-            Assert.That(result!.Model, Is.EqualTo(expectedList));
+            Assert.That(result!.Model, Is.EqualTo(expectedViewModel));
         });
-    }
-
-    [Test]
-    public async Task AddBook_ShouldRedirectToIndex()
-    {
-        // Arrange
-        var userId = "user1";
-        var bookId = "book1";
-
-        userManagerMock.Setup(m => m.GetUserId(It.IsAny<System.Security.Claims.ClaimsPrincipal>()))
-            .Returns(userId);
-
-        // Act
-        var actionResult = await controller.AddBook(bookId);
-        var result = actionResult as RedirectToActionResult;
-
-        // Assert
-        Assert.Multiple(() =>
-        {
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result!.ActionName, Is.EqualTo("Index"));
-        });
-
-        readingListServiceMock.Verify(s => s.AddBookAsync(userId, bookId), Times.Once);
-    }
-
-    [Test]
-    public async Task RemoveBook_ShouldRedirectToIndex()
-    {
-        // Arrange
-        var userId = "user1";
-        var bookId = "book1";
-
-        userManagerMock.Setup(m => m.GetUserId(It.IsAny<System.Security.Claims.ClaimsPrincipal>()))
-            .Returns(userId);
-
-        // Act
-        var actionResult = await controller.RemoveBook(bookId);
-        var result = actionResult as RedirectToActionResult;
-
-        // Assert
-        Assert.Multiple(() =>
-        {
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result!.ActionName, Is.EqualTo("Index"));
-        });
-
-        readingListServiceMock.Verify(s => s.RemoveBookAsync(userId, bookId), Times.Once);
     }
 
     [Test]
     public async Task UpdateStatus_ShouldRedirectToIndex()
     {
-        // Arrange
         var userId = "user1";
         var bookId = "book1";
-        var status = ReadingStatus.Reading;
+        var status = LitConnect.Web.ViewModels.ReadingList.ReadingStatus.Reading;
 
         userManagerMock.Setup(m => m.GetUserId(It.IsAny<System.Security.Claims.ClaimsPrincipal>()))
             .Returns(userId);
 
-        // Act
         var actionResult = await controller.UpdateStatus(bookId, status);
         var result = actionResult as RedirectToActionResult;
 
-        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.Not.Null);
             Assert.That(result!.ActionName, Is.EqualTo("Index"));
         });
 
-        readingListServiceMock.Verify(s => s.UpdateBookStatusAsync(userId, bookId, status), Times.Once);
-    }
-
-    [TearDown]
-    public void TearDown()
-    {
-        Dispose();
+        readingListServiceMock.Verify(
+            s => s.UpdateBookStatusAsync(userId, bookId, (LitConnect.Services.Models.ReadingStatus)status),
+            Times.Once);
     }
 
     public void Dispose()

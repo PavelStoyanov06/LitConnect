@@ -105,9 +105,8 @@ public class BookService : IBookService
             {
                 book.IsDeleted = true;
                 await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
             }
-
-            await transaction.CommitAsync();
         }
         catch
         {

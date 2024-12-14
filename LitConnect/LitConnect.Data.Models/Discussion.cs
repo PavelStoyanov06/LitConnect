@@ -1,21 +1,21 @@
 ﻿namespace LitConnect.Data.Models;
 
-using LitConnect.Common;
 using LitConnect.Data.Models.Common;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using static LitConnect.Common.ValidationConstants.Discussion;
 
 public class Discussion : BaseModel
 {
     [Required]
-    [MinLength(ValidationConstants.Discussion.TitleMinLength)]
-    [MaxLength(ValidationConstants.Discussion.TitleMaxLength)]
+    [MinLength(TitleMinLength)]
+    [MaxLength(TitleMaxLength)]
     [Comment("Title of the discussion thread")]
     public string Title { get; set; } = null!;
 
     [Required]
-    [MaxLength(ValidationConstants.Discussion.ContentMaxLength)]
+    [MaxLength(ContentMaxLength)]
     [Comment("Main content of the discussion post")]
     public string Content { get; set; } = null!;
 

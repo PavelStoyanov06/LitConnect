@@ -1,7 +1,6 @@
 ﻿using LitConnect.Data;
 using LitConnect.Data.Models;
 using LitConnect.Services.Implementations;
-using LitConnect.Web.ViewModels.Meeting;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 
@@ -37,14 +36,11 @@ public class MeetingServiceTests : IDisposable
     [Test]
     public async Task GetBookClubMeetingsAsync_ShouldReturnAllNonDeletedMeetings()
     {
-        // Arrange
         await SeedDataAsync();
         var bookClubId = "bookclub1";
 
-        // Act
         var result = await meetingService.GetBookClubMeetingsAsync(bookClubId);
 
-        // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Count(), Is.EqualTo(2));
     }
@@ -52,14 +48,11 @@ public class MeetingServiceTests : IDisposable
     [Test]
     public async Task GetDetailsAsync_WithValidId_ShouldReturnCorrectMeeting()
     {
-        // Arrange
         await SeedDataAsync();
         var meetingId = "meeting1";
 
-        // Act
         var result = await meetingService.GetDetailsAsync(meetingId);
 
-        // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.Title, Is.EqualTo("Test Meeting 1"));
         Assert.That(result.BookClubId, Is.EqualTo("bookclub1"));
@@ -68,38 +61,28 @@ public class MeetingServiceTests : IDisposable
     [Test]
     public async Task CreateAsync_ShouldCreateNewMeeting()
     {
-        // Arrange
-        await SeedDataAsync();
-        var model = new MeetingCreateViewModel
-        {
-            Title = "New Meeting",
-            Description = "New Description",
-            ScheduledDate = DateTime.UtcNow.AddDays(1),
-            BookClubId = "bookclub1",
-            BookId = "book1"
-        };
+        var title = "Test Meeting";
+        var description = "Test Description";
+        var scheduledDate = DateTime.UtcNow.AddDays(1);
+        var bookClubId = "club1";
+        var bookId = "book1";
 
-        // Act
-        var meetingId = await meetingService.CreateAsync(model);
+        var meetingId = await meetingService.CreateAsync(title, description, scheduledDate, bookClubId, bookId);
 
-        // Assert
         var createdMeeting = await dbContext.Meetings.FindAsync(meetingId);
         Assert.That(createdMeeting, Is.Not.Null);
-        Assert.That(createdMeeting!.Title, Is.EqualTo(model.Title));
-        Assert.That(createdMeeting.BookClubId, Is.EqualTo(model.BookClubId));
+        Assert.That(createdMeeting!.Title, Is.EqualTo(title));
+        Assert.That(createdMeeting.Description, Is.EqualTo(description));
     }
 
     [Test]
     public async Task DeleteAsync_ShouldSoftDeleteMeeting()
     {
-        // Arrange
         await SeedDataAsync();
         var meetingId = "meeting1";
 
-        // Act
         await meetingService.DeleteAsync(meetingId);
 
-        // Assert
         var deletedMeeting = await dbContext.Meetings.FindAsync(meetingId);
         Assert.That(deletedMeeting!.IsDeleted, Is.True);
     }
@@ -107,28 +90,22 @@ public class MeetingServiceTests : IDisposable
     [Test]
     public async Task ExistsAsync_WithValidId_ShouldReturnTrue()
     {
-        // Arrange
         await SeedDataAsync();
         var meetingId = "meeting1";
 
-        // Act
         var result = await meetingService.ExistsAsync(meetingId);
 
-        // Assert
         Assert.That(result, Is.True);
     }
 
     [Test]
     public async Task ExistsAsync_WithInvalidId_ShouldReturnFalse()
     {
-        // Arrange
         await SeedDataAsync();
         var meetingId = "nonexistent";
 
-        // Act
         var result = await meetingService.ExistsAsync(meetingId);
 
-        // Assert
         Assert.That(result, Is.False);
     }
 

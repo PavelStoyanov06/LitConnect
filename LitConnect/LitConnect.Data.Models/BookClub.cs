@@ -1,10 +1,10 @@
 ﻿namespace LitConnect.Data.Models;
 
-using LitConnect.Common;
 using LitConnect.Data.Models.Common;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using static LitConnect.Common.ValidationConstants.BookClub;
 
 public class BookClub : BaseModel
 {
@@ -17,12 +17,12 @@ public class BookClub : BaseModel
     }
 
     [Required]
-    [MinLength(ValidationConstants.BookClub.NameMinLength)]
-    [MaxLength(ValidationConstants.BookClub.NameMaxLength)]
+    [MinLength(NameMinLength)]
+    [MaxLength(NameMaxLength)]
     [Comment("The name of the book club")]
     public string Name { get; set; } = null!;
 
-    [MaxLength(ValidationConstants.BookClub.DescriptionMaxLength)]
+    [MaxLength(DescriptionMaxLength)]
     [Comment("Description of the book club's focus, rules, or purpose")]
     public string? Description { get; set; }
 

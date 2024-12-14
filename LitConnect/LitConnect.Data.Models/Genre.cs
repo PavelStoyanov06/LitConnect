@@ -1,9 +1,9 @@
 ﻿namespace LitConnect.Data.Models;
 
 using System.ComponentModel.DataAnnotations;
-using LitConnect.Common;
 using LitConnect.Data.Models.Common;
 using Microsoft.EntityFrameworkCore;
+using static LitConnect.Common.ValidationConstants.Book;
 
 public class Genre : BaseModel
 {
@@ -13,7 +13,7 @@ public class Genre : BaseModel
     }
 
     [Required]
-    [MaxLength(ValidationConstants.Book.GenreMaxLength)]
+    [MaxLength(GenreMaxLength)]
     [Comment("Name of the genre")]
     public string Name { get; set; } = null!;
 

@@ -1,15 +1,15 @@
 ﻿namespace LitConnect.Data.Models;
 
-using LitConnect.Common;
 using LitConnect.Data.Models.Common;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using static LitConnect.Common.ValidationConstants.Comment;
 
 public class Comment : BaseModel
 {
     [Required]
-    [MaxLength(ValidationConstants.Comment.ContentMaxLength)]
+    [MaxLength(ContentMaxLength)]
     [Comment("Main content of the comment")]
     public string Content { get; set; } = null!;
 

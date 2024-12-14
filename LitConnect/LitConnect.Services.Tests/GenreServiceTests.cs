@@ -36,13 +36,10 @@ public class GenreServiceTests : IDisposable
     [Test]
     public async Task GetAllAsync_ShouldReturnAllNonDeletedGenres()
     {
-        // Arrange
         await SeedDataAsync();
 
-        // Act
         var result = await genreService.GetAllAsync();
 
-        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.Not.Null);
@@ -53,14 +50,11 @@ public class GenreServiceTests : IDisposable
     [Test]
     public async Task GetByIdAsync_WithValidId_ShouldReturnCorrectGenre()
     {
-        // Arrange
         await SeedDataAsync();
         var genreId = "genre1";
 
-        // Act
         var result = await genreService.GetByIdAsync(genreId);
 
-        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.Not.Null);
@@ -71,34 +65,27 @@ public class GenreServiceTests : IDisposable
     [Test]
     public async Task ExistsAsync_WithExistingId_ShouldReturnTrue()
     {
-        // Arrange
         await SeedDataAsync();
         var genreId = "genre1";
 
-        // Act
         var result = await genreService.ExistsAsync(genreId);
 
-        // Assert
         Assert.That(result, Is.True);
     }
 
     [Test]
     public async Task ExistsAsync_WithNonExistingId_ShouldReturnFalse()
     {
-        // Arrange
         await SeedDataAsync();
         var genreId = "nonexistent";
 
-        // Act
         var result = await genreService.ExistsAsync(genreId);
 
-        // Assert
         Assert.That(result, Is.False);
     }
 
     private async Task SeedDataAsync()
     {
-        // Clear existing genres first
         var existingGenres = await dbContext.Genres.ToListAsync();
         dbContext.Genres.RemoveRange(existingGenres);
         await dbContext.SaveChangesAsync();

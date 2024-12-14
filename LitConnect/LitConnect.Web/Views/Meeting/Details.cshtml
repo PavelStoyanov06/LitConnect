@@ -6,7 +6,7 @@
 }
 
 <div class="container mt-4">
-    <div class="back-button-container">
+    <div class="back-button-container mb-3">
         <a asp-controller="BookClub" asp-action="Details" asp-route-id="@Model.BookClubId" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Back to Club
         </a>
@@ -53,8 +53,6 @@
                       asp-route-id="@Model.Id"
                       asp-route-bookClubId="@Model.BookClubId"
                       onsubmit="return confirm('Are you sure you want to delete this meeting?');">
-                    <a asp-controller="BookClub" asp-action="Details" asp-route-id="@Model.BookClubId"
-                       class="btn btn-secondary">Back to Book Club</a>
                     <button type="submit" class="btn btn-danger">Delete Meeting</button>
                 </form>
             </div>

@@ -1,7 +1,6 @@
 ﻿using LitConnect.Data;
 using LitConnect.Data.Models;
 using LitConnect.Services.Implementations;
-using LitConnect.Web.ViewModels.Discussion;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 
@@ -37,14 +36,11 @@ public class DiscussionServiceTests : IDisposable
     [Test]
     public async Task GetBookClubDiscussionsAsync_ShouldReturnAllNonDeletedDiscussions()
     {
-        // Arrange
         await SeedDataAsync();
         var bookClubId = "bookclub1";
 
-        // Act
         var result = await discussionService.GetBookClubDiscussionsAsync(bookClubId);
 
-        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.Not.Null);
@@ -55,19 +51,16 @@ public class DiscussionServiceTests : IDisposable
     [Test]
     public async Task GetDetailsAsync_WithValidId_ShouldReturnCorrectDiscussion()
     {
-        // Arrange
         await SeedDataAsync();
-        var discussionId = "discussion1";
         var userId = "user1";
 
-        // Act
-        var result = await discussionService.GetDetailsAsync(discussionId, userId);
+        var result = await discussionService.GetDetailsAsync("discussion1", userId);
 
-        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.Not.Null);
             Assert.That(result!.Title, Is.EqualTo("Test Discussion 1"));
+            Assert.That(result.AuthorName, Is.EqualTo("Test User"));
             Assert.That(result.IsCurrentUserAuthor, Is.True);
         });
     }
@@ -75,42 +68,29 @@ public class DiscussionServiceTests : IDisposable
     [Test]
     public async Task CreateAsync_ShouldCreateNewDiscussion()
     {
-        // Arrange
-        await SeedDataAsync();
-        var model = new DiscussionCreateViewModel
-        {
-            Title = "New Discussion",
-            Content = "New Content",
-            BookClubId = "bookclub1"
-        };
+        var title = "Test Discussion";
+        var content = "Test Content";
+        var bookClubId = "club1";
+        var bookId = "book1";
         var authorId = "user1";
 
-        // Act
-        var discussionId = await discussionService.CreateAsync(model, authorId);
-        var createdDiscussion = await dbContext.Discussions.FindAsync(discussionId);
+        var discussionId = await discussionService.CreateAsync(title, content, bookClubId, bookId, authorId);
 
-        // Assert
-        Assert.Multiple(() =>
-        {
-            Assert.That(createdDiscussion, Is.Not.Null);
-            Assert.That(createdDiscussion!.Title, Is.EqualTo(model.Title));
-            Assert.That(createdDiscussion.Content, Is.EqualTo(model.Content));
-            Assert.That(createdDiscussion.AuthorId, Is.EqualTo(authorId));
-        });
+        var createdDiscussion = await dbContext.Discussions.FindAsync(discussionId);
+        Assert.That(createdDiscussion, Is.Not.Null);
+        Assert.That(createdDiscussion!.Title, Is.EqualTo(title));
+        Assert.That(createdDiscussion.BookClubId, Is.EqualTo(bookClubId));
     }
 
     [Test]
     public async Task DeleteAsync_ShouldSoftDeleteDiscussion()
     {
-        // Arrange
         await SeedDataAsync();
         var discussionId = "discussion1";
 
-        // Act
         await discussionService.DeleteAsync(discussionId);
         var deletedDiscussion = await dbContext.Discussions.FindAsync(discussionId);
 
-        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(deletedDiscussion, Is.Not.Null);
@@ -121,36 +101,29 @@ public class DiscussionServiceTests : IDisposable
     [Test]
     public async Task CanUserDeleteAsync_WithAuthor_ShouldReturnTrue()
     {
-        // Arrange
         await SeedDataAsync();
         var discussionId = "discussion1";
         var authorId = "user1";
 
-        // Act
         var result = await discussionService.CanUserDeleteAsync(discussionId, authorId);
 
-        // Assert
         Assert.That(result, Is.True);
     }
 
     [Test]
     public async Task CanUserDeleteAsync_WithAdmin_ShouldReturnTrue()
     {
-        // Arrange
         await SeedDataAsync();
         var discussionId = "discussion1";
         var adminId = "admin1";
 
-        // Act
         var result = await discussionService.CanUserDeleteAsync(discussionId, adminId);
 
-        // Assert
         Assert.That(result, Is.True);
     }
 
     private async Task SeedDataAsync()
     {
-        // Add users
         var users = new[]
         {
             new ApplicationUser
@@ -171,7 +144,6 @@ public class DiscussionServiceTests : IDisposable
             }
         };
 
-        // Add book club
         var bookClub = new BookClub
         {
             Id = "bookclub1",
@@ -179,7 +151,6 @@ public class DiscussionServiceTests : IDisposable
             OwnerId = "user1"
         };
 
-        // Add book club memberships
         var memberships = new[]
         {
             new UserBookClub
@@ -198,7 +169,6 @@ public class DiscussionServiceTests : IDisposable
             }
         };
 
-        // Add discussions
         var discussions = new[]
         {
             new Discussion

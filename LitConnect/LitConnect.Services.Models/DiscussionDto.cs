@@ -19,4 +19,11 @@ public class DiscussionDto
     public DateTime CreatedOn { get; set; }
 
     public ICollection<CommentDto> Comments { get; set; } = new List<CommentDto>();
+
+    public bool IsCurrentUserAuthor { get; set; }
+
+    public bool IsCurrentUserAdmin { get; set; }
+
+    public bool IsCurrentUserOwner { get; set; }
+
 }

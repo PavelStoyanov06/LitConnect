@@ -4,7 +4,7 @@ using LitConnect.Services.Models;
 
 public interface IBookClubService
 {
-    Task<IEnumerable<BookClubDto>> GetAllAsync();
+    Task<IEnumerable<BookClubDto>> GetAllAsync(string userId);
 
     Task<BookClubDto?> GetByIdAsync(string id);
 

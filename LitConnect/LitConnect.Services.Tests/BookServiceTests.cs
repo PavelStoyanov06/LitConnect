@@ -1,8 +1,8 @@
 ﻿using LitConnect.Data;
 using LitConnect.Data.Models;
 using LitConnect.Services.Implementations;
-using LitConnect.Web.ViewModels.Book;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using NUnit.Framework;
 
 namespace LitConnect.Services.Tests;
@@ -18,33 +18,31 @@ public class BookServiceTests : IDisposable
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
-        this.dbOptions = new DbContextOptionsBuilder<LitConnectDbContext>()
+        dbOptions = new DbContextOptionsBuilder<LitConnectDbContext>()
             .UseInMemoryDatabase($"LitConnectBookTestDb_{Guid.NewGuid()}")
+            .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
             .Options;
-
-        this.dbContext = new LitConnectDbContext(this.dbOptions);
-        this.bookService = new BookService(this.dbContext);
     }
 
     [SetUp]
     public void Setup()
     {
-        // Reset the database before each test
+        dbContext = new LitConnectDbContext(dbOptions);
+        bookService = new BookService(dbContext);
+
         dbContext.Database.EnsureDeleted();
         dbContext.Database.EnsureCreated();
         dbContext.ChangeTracker.Clear();
     }
 
+
     [Test]
     public async Task GetAllAsync_ShouldReturnAllNonDeletedBooks()
     {
-        // Arrange
         await SeedBooksAsync();
 
-        // Act
         var result = await bookService.GetAllAsync();
 
-        // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Count(), Is.EqualTo(2), "Should return only non-deleted books");
     }
@@ -52,14 +50,11 @@ public class BookServiceTests : IDisposable
     [Test]
     public async Task GetDetailsAsync_WithValidId_ShouldReturnCorrectBook()
     {
-        // Arrange
         await SeedBooksAsync();
         var testBookId = "book1";
 
-        // Act
-        var result = await bookService.GetDetailsAsync(testBookId);
+        var result = await bookService.GetByIdAsync(testBookId);
 
-        // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.Title, Is.EqualTo("Test Book 1"));
     }
@@ -67,57 +62,43 @@ public class BookServiceTests : IDisposable
     [Test]
     public async Task CreateAsync_ShouldCreateNewBook()
     {
-        // Arrange
-        await SeedBooksAsync();
-        var model = new BookCreateViewModel
-        {
-            Title = "New Book",
-            Author = "New Author",
-            Description = "New Description",
-            GenreIds = new[] { "genre1" }
-        };
+        var title = "New Book";
+        var author = "New Author";
+        var description = "New Description";
+        var genreIds = new[] { "genre1" };
 
-        // Act
-        var bookId = await bookService.CreateAsync(model);
+        var bookId = await bookService.CreateAsync(title, author, description, genreIds);
 
-        // Assert
         var createdBook = await dbContext.Books.FindAsync(bookId);
         Assert.That(createdBook, Is.Not.Null);
-        Assert.That(createdBook!.Title, Is.EqualTo(model.Title));
-        Assert.That(createdBook.Author, Is.EqualTo(model.Author));
+        Assert.That(createdBook!.Title, Is.EqualTo(title));
+        Assert.That(createdBook.Author, Is.EqualTo(author));
     }
 
     [Test]
     public async Task ExistsAsync_WithExistingBook_ShouldReturnTrue()
     {
-        // Arrange
         await SeedBooksAsync();
         var bookId = "book1";
 
-        // Act
         var result = await bookService.ExistsAsync(bookId);
 
-        // Assert
         Assert.That(result, Is.True);
     }
 
     [Test]
     public async Task ExistsAsync_WithNonExistingBook_ShouldReturnFalse()
     {
-        // Arrange
         await SeedBooksAsync();
         var bookId = "nonexistent";
 
-        // Act
         var result = await bookService.ExistsAsync(bookId);
 
-        // Assert
         Assert.That(result, Is.False);
     }
 
     private async Task SeedBooksAsync()
     {
-        // Clear existing data first
         var existingBooks = await dbContext.Books.ToListAsync();
         var existingGenres = await dbContext.Genres.ToListAsync();
         var existingBookGenres = await dbContext.BooksGenres.ToListAsync();
@@ -127,14 +108,12 @@ public class BookServiceTests : IDisposable
         dbContext.Genres.RemoveRange(existingGenres);
         await dbContext.SaveChangesAsync();
 
-        // Add test genres
         await dbContext.Genres.AddRangeAsync(new[]
         {
             new Genre { Id = "genre1", Name = "Fiction", IsDeleted = false },
             new Genre { Id = "genre2", Name = "Non-Fiction", IsDeleted = false }
         });
 
-        // Add test books
         await dbContext.Books.AddRangeAsync(new[]
         {
             new Book
@@ -163,7 +142,6 @@ public class BookServiceTests : IDisposable
             }
         });
 
-        // Add book-genre relationships
         await dbContext.BooksGenres.AddRangeAsync(new[]
         {
         new BookGenre { BookId = "book1", GenreId = "genre1", IsDeleted = false },
@@ -195,7 +173,8 @@ public class BookServiceTests : IDisposable
     public async Task DeleteAsync_ShouldSoftDeleteBook()
     {
         await SeedBooksAsync();
-        var bookId = "book1";
+
+        const string bookId = "book1";
 
         await bookService.DeleteAsync(bookId);
 
