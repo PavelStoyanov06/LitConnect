@@ -36,17 +36,11 @@
 
                         <div class="mb-3">
                             <label asp-for="ScheduledDate" class="form-label">Date and Time</label>
-                            <div class="row">
-                                <div class="col">
-                                    <input asp-for="ScheduledDate"
-                                           class="form-control"
-                                           type="datetime-local"
-                                           asp-format="{0:yyyy-MM-dd HH:mm}"
-                                           step="60" />
-                                </div>
-                            </div>
+                            <input asp-for="ScheduledDate"
+                                   class="form-control"
+                                   type="datetime-local"
+                                   value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
                             <span asp-validation-for="ScheduledDate" class="text-danger"></span>
-                            <small class="form-text text-muted">Select date and time (hours and minutes)</small>
                         </div>
 
 
